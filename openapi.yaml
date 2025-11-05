@@ -1,0 +1,80 @@
+openapi: 3.0.3
+info:
+  title: APTUM Client Contracts (MVP)
+  version: 0.1.0
+  description: |
+    Client-only MVP. This file documents product-level schemas (Plan, Session, Recovery, Blocker) to ensure consistent contracts between UI and services. No network endpoints in MVP.
+paths: {}
+components:
+  schemas:
+    Profile:
+      type: object
+      properties:
+        ageYears: { type: integer }
+        gender: { type: string, nullable: true, enum: [Male, Female] }
+        heightCm: { type: number }
+        weightKg: { type: number }
+        units: { type: string, enum: [metric, imperial] }
+        endurance: { type: string }
+        liftingExperience: { type: string }
+    Plan:
+      type: object
+      required: [version, cycle]
+      properties:
+        version: { type: string }
+        hash: { type: string }
+        pattern: { type: string }
+        cycle:
+          type: object
+          properties: { weeks: { type: integer }, startISO: { type: string } }
+        priorities:
+          type: object
+          additionalProperties: { type: number }
+        targets:
+          type: object
+          properties:
+            strength: { type: object, additionalProperties: { type: number } }
+            sessions: { type: object, additionalProperties: { type: number } }
+        constraints:
+          type: object
+          properties: { defaultDailyCapMin: { type: integer } }
+        profileSnapshot: { $ref: '#/components/schemas/Profile' }
+        acceptedAt: { type: string }
+    Session:
+      type: object
+      required: [sessionId, dateISO, lengthMin, focus, blocks]
+      properties:
+        sessionId: { type: string }
+        dateISO: { type: string }
+        lengthMin: { type: integer }
+        focus: { type: string }
+        blocks: { type: array, items: { type: object } }
+        policy: { type: object }
+    Recovery:
+      type: object
+      properties:
+        systemic:
+          type: object
+          properties:
+            readiness: { type: number, minimum: 0, maximum: 100 }
+            source: { type: string }
+            rhrBpm: { type: number }
+            hrvRmssdMs: { type: number }
+            baseline:
+              type: object
+              properties: { rhrBpm: { type: number }, hrvRmssdMs: { type: number } }
+        perMuscle:
+          type: object
+          additionalProperties: { type: number }
+        inputs: { type: object }
+    Blocker:
+      type: object
+      required: [id, type]
+      properties:
+        id: { type: string }
+        type: { type: string, enum: [RecoveryDay, GameDay, TeamPractice, Appointment] }
+        fatigue: { type: string, enum: [None, Low, Medium, High] }
+        rrule: { type: string }
+        window:
+          type: object
+          properties: { startLocal: { type: string }, endLocal: { type: string } }
