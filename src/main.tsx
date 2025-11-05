@@ -9,6 +9,7 @@ import Session from './pages/Session';
 import Recovery from './pages/Recovery';
 import Settings from './pages/Settings';
 import Onboarding from './pages/Onboarding';
+import Weekly from './pages/Weekly';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -20,6 +21,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/strategy" element={<Strategy />} />
           <Route path="/schedule" element={<Schedule />} />
           <Route path="/session" element={<Session />} />
+          <Route path="/week" element={<Weekly />} />
           <Route path="/recovery" element={<Recovery />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>

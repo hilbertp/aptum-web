@@ -1,10 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Dumbbell, Calendar, Brain, Activity, Settings as Cog } from 'lucide-react';
+import { Dumbbell, Calendar, Brain, Activity, Settings as Cog, Layout as WeekIcon } from 'lucide-react';
 import { ReactNode } from 'react';
 
 const nav = [
   { to: '/strategy', label: 'Strategy', icon: Brain },
   { to: '/schedule', label: 'Schedule', icon: Calendar },
+  { to: '/week', label: 'Week', icon: WeekIcon },
   { to: '/session', label: "Today's Session", icon: Dumbbell },
   { to: '/recovery', label: 'Recovery', icon: Activity },
   { to: '/settings', label: 'Settings', icon: Cog }

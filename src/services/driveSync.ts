@@ -10,6 +10,10 @@ export class DriveSyncService {
     this.accessToken = token;
   }
 
+  get hasToken() {
+    return !!this.accessToken;
+  }
+
   async uploadObject(path: string, _blob: Blob) {
     if (!this.accessToken) throw new Error('Not authenticated');
     // TODO: implement upload to Drive appDataFolder using multipart/related or uploadType=resumable

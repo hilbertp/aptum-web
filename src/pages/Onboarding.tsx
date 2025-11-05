@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
+import { useAuth } from '@/stores/auth';
+import { signInWithGoogle } from '@/services/auth';
 
 export default function Onboarding() {
-  useEffect(() => {
-    // placeholder for onboarding steps
-  }, []);
+  const auth = useAuth();
+  useEffect(() => {}, []);
 
   return (
     <div className="grid gap-4">
@@ -23,7 +24,13 @@ export default function Onboarding() {
             <h2 className="font-semibold">Google Sign-In</h2>
             <p className="text-sm text-muted">Required to set up your private Drive App Folder for data sync.</p>
           </div>
-          <button className="btn btn-primary">Sign in with Google</button>
+          {auth.status !== 'signed_in' ? (
+            <button className="btn btn-primary" onClick={signInWithGoogle}>
+              {auth.status === 'signing_in' ? 'Signing in…' : 'Sign in with Google'}
+            </button>
+          ) : (
+            <div className="text-sm text-aptum-blue">Connected</div>
+          )}
         </div>
       </div>
     </div>
