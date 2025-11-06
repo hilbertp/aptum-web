@@ -41,7 +41,8 @@ export default defineConfig({
   server: {
     port: 5173,
     allowedHosts: [
-      '5173-ixt7cg62aq3fulcszxv66-6532622b.e2b.dev'
+      '5173-ixt7cg62aq3fulcszxv66-6532622b.e2b.dev',
+      '5174-ixt7cg62aq3fulcszxv66-6532622b.e2b.dev'
     ]
   }
 });
