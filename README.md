@@ -24,6 +24,7 @@ Environment
 
 Docs
 - See /docs for PRD/ASA/TIG summaries and schemas
+- Role contract: see [/docs/ROLE_CONTRACT.md](docs/ROLE_CONTRACT.md)
 
 License
 Apache-2.0

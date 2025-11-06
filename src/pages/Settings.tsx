@@ -15,7 +15,54 @@ export default function Settings() {
           <h2 className="font-semibold">Export / Import</h2>
           <div className="text-sm text-muted">Download or restore your complete dataset (JSON zip).</div>
         </div>
+        <DriveSyncCard />
       </div>
+    </div>
+  );
+}
+
+import { useState } from 'react';
+import { syncUpload, syncDownload } from '@/services/sync';
+import { driveSync } from '@/services/driveSync';
+
+function DriveSyncCard() {
+  const [status, setStatus] = useState<string>('Idle');
+
+  const onSync = async () => {
+    try {
+      setStatus('Syncing…');
+      await syncUpload();
+      setStatus('Synced to Drive');
+    } catch (e:any) {
+      setStatus(`Error: ${e.message}`);
+    }
+  };
+
+  const onRestore = async () => {
+    try {
+      setStatus('Downloading…');
+      const blob = await syncDownload();
+      if (!blob) { setStatus('No backup on Drive'); return; }
+      // For MVP: just trigger a download of the decrypted zip
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'aptum_export.zip'; a.click();
+      URL.revokeObjectURL(url);
+      setStatus('Downloaded');
+    } catch (e:any) {
+      setStatus(`Error: ${e.message}`);
+    }
+  };
+
+  return (
+    <div className="card p-4">
+      <h2 className="font-semibold">Drive Sync</h2>
+      <div className="text-sm text-muted mb-2">Encrypted bundle in your Google Drive App Folder. Requires Google Sign-In.</div>
+      <div className="flex gap-2">
+        <button className="btn btn-primary" onClick={onSync} disabled={!driveSync.hasToken}>Sync to Drive</button>
+        <button className="btn btn-outline" onClick={onRestore} disabled={!driveSync.hasToken}>Restore</button>
+      </div>
+      <div className="text-xs text-muted mt-2">{status}</div>
     </div>
   );
 }

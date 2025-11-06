@@ -40,6 +40,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
               );
             })}
           </nav>
+          <SyncLight />
         </div>
       </header>
 
@@ -68,6 +69,22 @@ export default function AppShell({ children }: { children: ReactNode }) {
           })}
         </div>
       </footer>
+    </div>
+  );
+}
+
+import { useEffect, useState } from 'react';
+import { driveSync } from '@/services/driveSync';
+
+function SyncLight() {
+  const [connected, setConnected] = useState<boolean>(driveSync.hasToken);
+  useEffect(() => {
+    const id = setInterval(() => setConnected(driveSync.hasToken), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div className={'text-xs ' + (connected ? 'text-aptum-blue' : 'text-muted')}>
+      {connected ? 'Drive Connected' : 'Drive Disconnected'}
     </div>
   );
 }
