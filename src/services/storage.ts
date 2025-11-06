@@ -81,6 +81,23 @@ export async function listSessionsByDate<T = any>(dateISO: string) {
   return all.filter((s) => s?.dateISO === dateISO) as T[];
 }
 
+export async function setSessionStatus(sessionId: string, status: 'planned'|'in_progress'|'aborted'|'completed') {
+  const existing = await get<any>('sessions', sessionId);
+  const next = { ...(existing || {}), sessionId, status };
+  await put('sessions', sessionId, next);
+}
+
+export async function getSessionStatus(sessionId: string): Promise<'planned'|'in_progress'|'aborted'|'completed'|undefined> {
+  const existing = await get<any>('sessions', sessionId);
+  return existing?.status as any;
+}
+
+export async function upsertSessionPreservingStatus(session: any) {
+  const existing = await get<any>('sessions', session.sessionId);
+  const status = existing?.status ?? 'planned';
+  await put('sessions', session.sessionId, { ...session, status });
+}
+
 export async function saveRecoverySnapshot(dateISO: string, snapshot: any) {
   await put('recoverySnapshots', dateISO, { ...snapshot, dateISO });
 }

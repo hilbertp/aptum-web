@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import type { Session as SessionT } from '@/schemas/product';
-import { listSessionsByDate } from '@/services/storage';
+import { listSessionsByDate, setSessionStatus } from '@/services/storage';
 import { tracking } from '@/services/tracking';
 
 export default function Session() {
@@ -13,7 +13,10 @@ export default function Session() {
   useEffect(() => {
     (async () => {
       const list = await listSessionsByDate<SessionT>(todayISO);
-      setSession(list[0] || null);
+      const s = list[0] || null;
+      setSession(s);
+      const st = (s as any)?.status as any;
+      if (st) setStatus(st === 'planned' ? 'idle' : st);
     })();
   }, [todayISO]);
 
@@ -41,9 +44,21 @@ export default function Session() {
           <aside className="card p-4">
             <h2 className="font-semibold mb-2">Controls</h2>
             <div className="space-y-2">
-              <button className="btn btn-primary w-full" onClick={()=>setStatus('in_progress')} disabled={status==='in_progress'}>Start Session</button>
-              <button className="btn btn-outline w-full" onClick={()=>setStatus('aborted')}>Abort (Partial)</button>
-              <button className="btn btn-outline w-full" onClick={()=>setStatus('completed')} disabled={status==='completed'}>Complete</button>
+              <button className="btn btn-primary w-full" onClick={async()=>{
+                if (!session) return; setStatus('in_progress');
+                await setSessionStatus(session.sessionId, 'in_progress');
+                await tracking.logSessionStatus({ eventId: crypto.randomUUID(), sessionId: session.sessionId, status: 'in_progress', ts: Date.now() });
+              }} disabled={status==='in_progress'}>Start Session</button>
+              <button className="btn btn-outline w-full" onClick={async()=>{
+                if (!session) return; setStatus('aborted');
+                await setSessionStatus(session.sessionId, 'aborted');
+                await tracking.logSessionStatus({ eventId: crypto.randomUUID(), sessionId: session.sessionId, status: 'aborted', ts: Date.now() });
+              }}>Abort (Partial)</button>
+              <button className="btn btn-outline w-full" onClick={async()=>{
+                if (!session) return; setStatus('completed');
+                await setSessionStatus(session.sessionId, 'completed');
+                await tracking.logSessionStatus({ eventId: crypto.randomUUID(), sessionId: session.sessionId, status: 'completed', ts: Date.now() });
+              }} disabled={status==='completed'}>Complete</button>
             </div>
             <div className="text-xs text-muted mt-2">Status: {status}</div>
           </aside>
