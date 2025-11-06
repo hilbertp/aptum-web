@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getProfile, setProfile } from '@/services/storage';
 import EnduranceSelect, { EnduranceSelection, EnduranceLevelKey } from '@/components/EnduranceSelect';
+import InputWithUnit from '@/components/InputWithUnit';
 
 type AthleteProfile = {
   name?: string;
@@ -17,6 +18,7 @@ export default function Profile() {
   const [profile, setP] = useState<AthleteProfile>({ units: 'metric' });
   const [status, setStatus] = useState<string>('');
   const [enduranceSel, setEnduranceSel] = useState<EnduranceSelection | undefined>(undefined);
+  const [autoSaved, setAutoSaved] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -59,6 +61,19 @@ export default function Profile() {
     setTimeout(()=>setStatus(''), 1200);
   };
 
+  // Auto-save on change with debounce so users don't have to press Save
+  useEffect(() => {
+    const t = setTimeout(() => {
+      (async () => {
+        await save();
+        setAutoSaved(true);
+        setTimeout(() => setAutoSaved(false), 1000);
+      })();
+    }, 600);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile.units, profile.ageYears, profile.gender, profile.heightCm, profile.weightKg, profile.liftingExperience, enduranceSel]);
+
   return (
     <div className="grid gap-4">
       <h1 className="text-2xl font-bold">Athlete Profile</h1>
@@ -73,7 +88,7 @@ export default function Profile() {
           </label>
           <label className="grid gap-1">
             <span className="text-sm text-muted">Age</span>
-            <input className="border rounded px-3 py-2" type="number" placeholder="30" value={profile.ageYears ?? ''} onChange={(e)=>setP((p)=>({ ...p, ageYears: toNumber(e.target.value) }))} />
+            <input className="border rounded px-3 py-2" type="number" min={10} max={95} placeholder="30" value={profile.ageYears ?? ''} onChange={(e)=>setP((p)=>({ ...p, ageYears: toNumber(e.target.value) }))} />
           </label>
           <label className="grid gap-1">
             <span className="text-sm text-muted">Sex</span>
@@ -83,20 +98,22 @@ export default function Profile() {
               <option value="Female">Female</option>
             </select>
           </label>
-          <label className="grid gap-1">
-            <span className="text-sm text-muted">Height</span>
-            <div className="relative">
-              <input className="border rounded px-3 py-2 w-full" type="number" placeholder={profile.units==='imperial' ? '70' : '175'} value={profile.heightCm ?? ''} onChange={(e)=>setP((p)=>({ ...p, heightCm: toNumber(e.target.value) }))} />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted text-sm">{profile.units==='imperial' ? 'in' : 'cm'}</span>
-            </div>
-          </label>
-          <label className="grid gap-1">
-            <span className="text-sm text-muted">Weight</span>
-            <div className="relative">
-              <input className="border rounded px-3 py-2 w-full" type="number" placeholder={profile.units==='imperial' ? '165' : '70'} value={profile.weightKg ?? ''} onChange={(e)=>setP((p)=>({ ...p, weightKg: toNumber(e.target.value) }))} />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted text-sm">{profile.units==='imperial' ? 'lb' : 'kg'}</span>
-            </div>
-          </label>
+          <InputWithUnit
+            label="Height"
+            unit={profile.units==='imperial' ? 'in' : 'cm'}
+            type="number"
+            placeholder={profile.units==='imperial' ? '70' : '175'}
+            value={profile.heightCm ?? ''}
+            onChange={(e)=>setP((p)=>({ ...p, heightCm: toNumber(e.target.value) }))}
+          />
+          <InputWithUnit
+            label="Weight"
+            unit={profile.units==='imperial' ? 'lb' : 'kg'}
+            type="number"
+            placeholder={profile.units==='imperial' ? '165' : '70'}
+            value={profile.weightKg ?? ''}
+            onChange={(e)=>setP((p)=>({ ...p, weightKg: toNumber(e.target.value) }))}
+          />
           <label className="grid gap-1">
             <span className="text-sm text-muted">Lifting Experience</span>
             <select className="border rounded px-3 py-2" value={profile.liftingExperience || ''} onChange={(e)=>setP((p)=>({ ...p, liftingExperience: e.target.value || undefined }))}>
@@ -117,8 +134,9 @@ export default function Profile() {
             VO₂ max represents the maximum amount of oxygen an individual can utilize during intense, maximal exercise. It’s a key indicator of cardiorespiratory fitness.
           </div>
           <div className="flex items-center gap-2">
-            <button className="btn btn-primary" onClick={save}>Save</button>
+            <button className="btn btn-primary rounded-xl" onClick={save}>Save</button>
             {status && <span className="text-xs text-muted">{status}</span>}
+            {autoSaved && <span className="text-xs text-aptum-blue">Auto‑saved</span>}
           </div>
         </div>
       </div>
