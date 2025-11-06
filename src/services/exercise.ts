@@ -44,10 +44,10 @@ export const exercise: ExerciseService = {
       try {
         // Fast path: BYDAY weekly match without heavy iteration
         const m = rruleStr.match(/BYDAY=([^;]+)/);
-        if (m) {
-          const bydays = m[1].split(',');
+        const bydays = m && m[1] ? m[1].split(',') : [];
+        if (bydays.length) {
           const map = ['SU','MO','TU','WE','TH','FR','SA'];
-          const dow = map[date.getDay()];
+          const dow = map[date.getDay()] as string;
           if (bydays.includes(dow)) return true;
         }
         const r = RRule.fromString(rruleStr);
@@ -67,6 +67,23 @@ export const exercise: ExerciseService = {
       return base;
     };
 
+    // Compute weekly focus distribution from plan priorities
+    const p = plan.priorities || { strength: 1, conditioning: 1 } as any;
+    const totalW = (p.strength || 1) + (p.conditioning || 1);
+    let nStrength = Math.max(1, Math.min(6, Math.round((p.strength || 1) * 7 / totalW)));
+    let nConditioning = 7 - nStrength;
+    const focusPool: string[] = [];
+    while (nStrength-- > 0) focusPool.push('Strength');
+    while (nConditioning-- > 0) focusPool.push('Conditioning');
+    // spread across week by alternating from ends
+    const weeklyFocus: string[] = new Array(7);
+    let left = 0, right = 6, idx = 0;
+    focusPool.sort((a,b)=> a.localeCompare(b)); // stable order
+    for (const f of focusPool) {
+      weeklyFocus[idx % 2 === 0 ? left++ : right--] = f;
+      idx++;
+    }
+
     for (let i = 0; i < 7; i++) {
       const d = new Date(start); d.setDate(start.getDate() + i);
       const iso = d.toISOString().slice(0, 10);
@@ -85,7 +102,7 @@ export const exercise: ExerciseService = {
         ];
         out.push(s);
       } else {
-        const s = await this.generateSession({ dateISO: iso, plan, recovery, capMin: cap });
+        const s = await this.generateSession({ dateISO: iso, plan, recovery, capMin: cap, focus: weeklyFocus[i] || 'Strength' });
         out.push(s);
       }
     }

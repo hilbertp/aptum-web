@@ -3,6 +3,8 @@ import { format, startOfWeek } from 'date-fns';
 import { exercise } from '@/services/exercise';
 import { getCurrentPlan, getRecoverySnapshot, saveSession } from '@/services/storage';
 import { recoveryService } from '@/services/recovery';
+import { driveSync } from '@/services/driveSync';
+import { syncUpload } from '@/services/sync';
 import type { Plan, Recovery, Session } from '@/schemas/product';
 
 export default function Weekly() {
@@ -29,7 +31,11 @@ export default function Weekly() {
       const sessions = await exercise.generateWeekAndValidate({ startISO, plan: p, recovery, capMin });
       setWeek(sessions);
       await Promise.all(sessions.map((s) => saveSession(s)));
-      setStatus('');
+      if (driveSync.hasToken) {
+        try { setStatus('Syncing…'); await syncUpload(); setStatus('Synced'); } catch { setStatus('Sync failed'); }
+      } else {
+        setStatus('');
+      }
     })();
   }, []);
 

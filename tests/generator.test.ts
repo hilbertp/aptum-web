@@ -15,13 +15,15 @@ describe('exercise.generateWeekAndValidate', () => {
     vi.resetModules();
   });
 
-  it('generates 7 sessions starting Monday with default focus when unblocked', async () => {
+  it('generates 7 sessions starting Monday with weighted focus when unblocked', async () => {
     vi.mock('@/services/storage', async () => ({ listBlockers: async () => [] }));
     const recovery: Recovery = { systemic: { readiness: 80 } } as any;
+    const priPlan: Plan = { ...plan, priorities: { strength: 2, conditioning: 5 } } as any;
     const { exercise } = await import('@/services/exercise');
-    const out = await exercise.generateWeekAndValidate({ startISO: monday, plan, recovery, capMin: 60 });
+    const out = await exercise.generateWeekAndValidate({ startISO: monday, plan: priPlan, recovery, capMin: 60 });
     expect(out).toHaveLength(7);
-    expect(out[0].focus).toBe('Strength');
+    const condDays = out.filter(s => s.focus === 'Conditioning').length;
+    expect(condDays).toBeGreaterThanOrEqual(3);
   });
 
   it('scales cap down for low readiness', async () => {

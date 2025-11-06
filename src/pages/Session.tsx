@@ -43,6 +43,7 @@ export default function Session() {
             <div className="space-y-2">
               <button className="btn btn-primary w-full" onClick={()=>setStatus('in_progress')} disabled={status==='in_progress'}>Start Session</button>
               <button className="btn btn-outline w-full" onClick={()=>setStatus('aborted')}>Abort (Partial)</button>
+              <button className="btn btn-outline w-full" onClick={()=>setStatus('completed')} disabled={status==='completed'}>Complete</button>
             </div>
             <div className="text-xs text-muted mt-2">Status: {status}</div>
           </aside>
