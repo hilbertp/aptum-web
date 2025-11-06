@@ -27,3 +27,4 @@ Notes for engineering
 - Background weekly generation before daily presentation; rebuild after a missed session.
 - Deterministic IDs for sessions/events.
 - SC cache with prompt template version and context hashes.
+\nCI: trigger auto-merge workflow
