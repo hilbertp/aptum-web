@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getProfile, setProfile } from '@/services/storage';
 import EnduranceSelect, { EnduranceSelection, EnduranceLevelKey } from '@/components/EnduranceSelect';
 import InputWithUnit from '@/components/InputWithUnit';
+import SelectBox from '@/components/SelectBox';
 
 type AthleteProfile = {
   name?: string;
@@ -75,29 +76,23 @@ export default function Profile() {
   }, [profile.units, profile.ageYears, profile.gender, profile.heightCm, profile.weightKg, profile.liftingExperience, enduranceSel]);
 
   return (
-    <div className="grid gap-4">
-      <h1 className="text-2xl font-bold">Athlete Profile</h1>
-      <div className="card p-4 max-w-md">
+    <div className="grid gap-6">
+      <h1 className="text-2xl font-bold text-center">Athlete Profile</h1>
+      <div className="mx-auto w-full max-w-lg rounded-2xl border border-line bg-white p-5 shadow-sm">
         <div className="grid gap-3">
-          <label className="grid gap-1">
-            <span className="text-sm text-muted">Units</span>
-            <select className="border rounded px-3 py-2" value={profile.units} onChange={(e)=>setP((p)=>({ ...p, units: (e.target.value as any) }))}>
-              <option value="metric">Metric (kg, cm)</option>
-              <option value="imperial">Imperial (lb, in)</option>
-            </select>
-          </label>
+          <SelectBox label="Units" value={profile.units} onChange={(e)=>setP((p)=>({ ...p, units: (e.target.value as any) }))}>
+            <option value="metric">Metric (kg, cm)</option>
+            <option value="imperial">Imperial (lb, in)</option>
+          </SelectBox>
           <label className="grid gap-1">
             <span className="text-sm text-muted">Age</span>
-            <input className="border rounded px-3 py-2" type="number" min={10} max={95} placeholder="30" value={profile.ageYears ?? ''} onChange={(e)=>setP((p)=>({ ...p, ageYears: toNumber(e.target.value) }))} />
+            <input className="rounded-xl border border-line px-3 py-2" type="number" min={10} max={95} placeholder="30" value={profile.ageYears ?? ''} onChange={(e)=>setP((p)=>({ ...p, ageYears: toNumber(e.target.value) }))} />
           </label>
-          <label className="grid gap-1">
-            <span className="text-sm text-muted">Sex</span>
-            <select className="border rounded px-3 py-2" value={profile.gender || ''} onChange={(e)=>setP((p)=>({ ...p, gender: (e.target.value || undefined) as any }))}>
-              <option value="">Select</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-            </select>
-          </label>
+          <SelectBox label="Sex" value={profile.gender || ''} onChange={(e)=>setP((p)=>({ ...p, gender: (e.target.value || undefined) as any }))}>
+            <option value="">Select</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </SelectBox>
           <InputWithUnit
             label="Height"
             unit={profile.units==='imperial' ? 'in' : 'cm'}
@@ -114,22 +109,19 @@ export default function Profile() {
             value={profile.weightKg ?? ''}
             onChange={(e)=>setP((p)=>({ ...p, weightKg: toNumber(e.target.value) }))}
           />
-          <label className="grid gap-1">
-            <span className="text-sm text-muted">Lifting Experience</span>
-            <select className="border rounded px-3 py-2" value={profile.liftingExperience || ''} onChange={(e)=>setP((p)=>({ ...p, liftingExperience: e.target.value || undefined }))}>
-              <option value="">Select your level</option>
-              <option>New to lifting</option>
-              <option>1–2 years consistent</option>
-              <option>3–5 years consistent</option>
-              <option>5+ years trained athlete</option>
-            </select>
-          </label>
+          <SelectBox label="Lifting Experience" value={profile.liftingExperience || ''} onChange={(e)=>setP((p)=>({ ...p, liftingExperience: (e.target.value || undefined) }))}>
+            <option value="">Select your level</option>
+            <option>New to lifting</option>
+            <option>1–2 years consistent</option>
+            <option>3–5 years consistent</option>
+            <option>5+ years trained athlete</option>
+          </SelectBox>
           <EnduranceSelect
             sex={(profile.gender === 'Female' ? 'female' : profile.gender === 'Male' ? 'male' : 'other')}
             value={enduranceSel}
             onChange={(sel)=>{ setEnduranceSel(sel); setP((p)=>({ ...p, endurance: sel.level } as any)); }}
           />
-          <div className="rounded-xl bg-gray-100 p-3 text-sm text-ink/80">
+          <div className="rounded-xl border border-line bg-gray-50 p-3 text-sm text-ink/80">
             <strong className="block mb-1">VO₂max Information</strong>
             VO₂ max represents the maximum amount of oxygen an individual can utilize during intense, maximal exercise. It’s a key indicator of cardiorespiratory fitness.
           </div>
