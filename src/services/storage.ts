@@ -48,3 +48,49 @@ export async function getAll<T>(store: Stores) {
   const db = await getDB();
   return (await db.getAll(store)) as T[];
 }
+
+// Convenience helpers for common entities
+export async function setSettings(v: any) {
+  await put('settings', 'singleton', v);
+}
+export async function getSettings<T = any>() {
+  return (await get<T>('settings', 'singleton')) || ({} as T);
+}
+
+export async function setCurrentPlan(plan: any) {
+  await put('plan', plan.version, plan);
+  const settings = (await getSettings()) as any;
+  settings.currentPlanVersion = plan.version;
+  await setSettings(settings);
+}
+export async function getCurrentPlan<T = any>() {
+  const settings = (await getSettings()) as any;
+  if (!settings.currentPlanVersion) return undefined as unknown as T | undefined;
+  return (await get<T>('plan', settings.currentPlanVersion)) as T | undefined;
+}
+
+export async function saveSession(session: any) {
+  await put('sessions', session.sessionId, session);
+}
+export async function getSessionById<T = any>(id: string) {
+  return (await get<T>('sessions', id)) as T | undefined;
+}
+
+export async function listSessionsByDate<T = any>(dateISO: string) {
+  const all = await getAll<any>('sessions');
+  return all.filter((s) => s?.dateISO === dateISO) as T[];
+}
+
+export async function saveRecoverySnapshot(dateISO: string, snapshot: any) {
+  await put('recoverySnapshots', dateISO, { ...snapshot, dateISO });
+}
+export async function getRecoverySnapshot<T = any>(dateISO: string) {
+  return (await get<T>('recoverySnapshots', dateISO)) as T | undefined;
+}
+
+export async function listBlockers<T = any>() {
+  return (await getAll<T>('blockers')) as T[];
+}
+export async function saveBlocker(blocker: any) {
+  await put('blockers', blocker.id, blocker);
+}
