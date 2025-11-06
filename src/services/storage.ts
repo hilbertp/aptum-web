@@ -50,6 +50,13 @@ export async function getAll<T>(store: Stores) {
 }
 
 // Convenience helpers for common entities
+export async function setProfile(v: any) {
+  await put('profile', 'singleton', v);
+}
+export async function getProfile<T = any>() {
+  return (await get<T>('profile', 'singleton')) || ({} as T);
+}
+
 export async function setSettings(v: any) {
   await put('settings', 'singleton', v);
 }

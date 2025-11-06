@@ -48,27 +48,29 @@ export default function AppShell({ children }: { children: ReactNode }) {
         <div className="mx-auto max-w-6xl px-4 py-6">{children}</div>
       </main>
 
-      <footer className="md:hidden fixed bottom-0 inset-x-0 border-t border-line bg-white/95 backdrop-blur">
-        <div className="grid grid-cols-5 text-xs">
-          {nav.map((n) => {
-            const active = pathname.startsWith(n.to);
-            const Icon = n.icon;
-            return (
-              <Link
-                key={n.to}
-                to={n.to}
-                className={
-                  'flex flex-col items-center justify-center py-2 ' +
-                  (active ? 'text-aptum-blue' : 'text-muted')
-                }
-              >
-                <Icon className="h-5 w-5" />
-                <span>{n.label}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </footer>
+      {pathname.startsWith('/onboarding') ? null : (
+        <footer className="md:hidden fixed bottom-0 inset-x-0 border-t border-line bg-white/95 backdrop-blur">
+          <div className="grid grid-cols-5 text-xs">
+            {nav.map((n) => {
+              const active = pathname.startsWith(n.to);
+              const Icon = n.icon;
+              return (
+                <Link
+                  key={n.to}
+                  to={n.to}
+                  className={
+                    'flex flex-col items-center justify-center py-2 ' +
+                    (active ? 'text-aptum-blue' : 'text-muted')
+                  }
+                >
+                  <Icon className="h-5 w-5" />
+                  <span>{n.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </footer>
+      )}
     </div>
   );
 }
