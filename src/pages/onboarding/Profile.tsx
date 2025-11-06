@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getProfile, setProfile } from '@/services/storage';
+import EnduranceSelect, { EnduranceSelection, EnduranceLevelKey } from '@/components/EnduranceSelect';
 
 type AthleteProfile = {
   name?: string;
@@ -15,11 +16,16 @@ type AthleteProfile = {
 export default function Profile() {
   const [profile, setP] = useState<AthleteProfile>({ units: 'metric' });
   const [status, setStatus] = useState<string>('');
+  const [enduranceSel, setEnduranceSel] = useState<EnduranceSelection | undefined>(undefined);
 
   useEffect(() => {
     (async () => {
       const p = await getProfile<AthleteProfile>();
       setP({ units: 'metric', ...p });
+      if (p && (p as any).endurance) {
+        const lvl = (p as any).endurance as EnduranceLevelKey;
+        setEnduranceSel({ level: lvl, vo2Range: { male: [null, null], female: [null, null] } });
+      }
     })();
   }, []);
 
@@ -44,6 +50,10 @@ export default function Profile() {
       heightCm,
       weightKg
     };
+    if (enduranceSel) {
+      (cleaned as any).endurance = enduranceSel.level; // persist level string for now
+      (cleaned as any).enduranceRange = enduranceSel.vo2Range;
+    }
     await setProfile(cleaned);
     setStatus('Saved');
     setTimeout(()=>setStatus(''), 1200);
@@ -97,16 +107,11 @@ export default function Profile() {
               <option>5+ years trained athlete</option>
             </select>
           </label>
-          <label className="grid gap-1">
-            <span className="text-sm text-muted">Endurance</span>
-            <select className="border rounded px-3 py-2" value={profile.endurance || ''} onChange={(e)=>setP((p)=>({ ...p, endurance: e.target.value || undefined }))}>
-              <option value="">Select your level</option>
-              <option>Beginner</option>
-              <option>Intermediate</option>
-              <option>Advanced</option>
-              <option>Elite</option>
-            </select>
-          </label>
+          <EnduranceSelect
+            sex={(profile.gender === 'Female' ? 'female' : profile.gender === 'Male' ? 'male' : 'other')}
+            value={enduranceSel}
+            onChange={(sel)=>{ setEnduranceSel(sel); setP((p)=>({ ...p, endurance: sel.level } as any)); }}
+          />
           <div className="rounded-xl bg-gray-100 p-3 text-sm text-ink/80">
             <strong className="block mb-1">VO₂max Information</strong>
             VO₂ max represents the maximum amount of oxygen an individual can utilize during intense, maximal exercise. It’s a key indicator of cardiorespiratory fitness.
