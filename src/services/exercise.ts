@@ -20,18 +20,27 @@ export interface ExerciseService {
 
 export const exercise: ExerciseService = {
   async generateSession({ dateISO, plan, capMin, focus = 'Strength' }) {
-    const session: Session = {
-      sessionId: `${dateISO}__v_${plan.version}__seq_01`,
-      dateISO,
-      lengthMin: capMin,
-      focus,
-      blocks: [
-        { type: 'warmup', items: ['bike 5min easy', 'hip openers'] },
-        { type: 'main', exercises: [{ id: 'back_squat', sets: 4, reps: 5, rir: 2 }] },
-        { type: 'accessory', exercises: [{ id: 'plank', sets: 3, timeSec: 60, rir: 2 }] },
-        { type: 'cooldown', items: ['hamstring stretch', 'walk 5min'] }
-      ]
-    } as Session;
+    const sessionId = `${dateISO}__v_${plan.version}__seq_01`;
+    const buildStrength = () => ([
+      { type: 'warmup', items: ['bike 5min easy', 'hip openers'] },
+      { type: 'main', exercises: [{ id: 'back_squat', sets: 4, reps: 5, rir: 2 }] },
+      { type: 'accessory', exercises: [{ id: 'plank', sets: 3, timeSec: 60, rir: 2 }] },
+      { type: 'cooldown', items: ['hamstring stretch', 'walk 5min'] }
+    ]);
+    const buildConditioning = () => ([
+      { type: 'warmup', items: ['row 5min easy'] },
+      { type: 'main', exercises: [{ id: 'airbike_intervals', sets: 10, timeSec: 30, rir: 3 }] },
+      { type: 'accessory', exercises: [{ id: 'farmer_carry', sets: 4, timeSec: 45, rir: 3 }] },
+      { type: 'cooldown', items: ['walk 5min'] }
+    ]);
+    const buildRecovery = () => ([
+      { type: 'warmup', items: ['walk 5-10min easy'] },
+      { type: 'recovery', items: ['breathing 5min', 'mobility flow 10min'] },
+      { type: 'cooldown', items: ['gentle stretch 5min'] }
+    ]);
+
+    const blocks = focus === 'Conditioning' ? buildConditioning() : focus === 'Recovery' ? buildRecovery() : buildStrength();
+    const session: Session = { sessionId, dateISO, lengthMin: capMin, focus, blocks } as Session;
     return session;
   },
   async generateWeekAndValidate({ startISO, plan, recovery, capMin }) {
@@ -84,6 +93,10 @@ export const exercise: ExerciseService = {
       idx++;
     }
 
+    const startDate = new Date(startISO);
+    const weekNum = Math.floor((startDate.getTime() - new Date(plan.cycle.startISO).getTime()) / (7*24*60*60*1000)) + 1;
+    const isDeload = plan.cycle.weeks >= 4 && weekNum % 4 === 0;
+
     for (let i = 0; i < 7; i++) {
       const d = new Date(start); d.setDate(start.getDate() + i);
       const iso = d.toISOString().slice(0, 10);
@@ -95,14 +108,16 @@ export const exercise: ExerciseService = {
       if (isBlocked || readiness <= 25) {
         const s = await this.generateSession({ dateISO: iso, plan, recovery, capMin: Math.max(25, Math.round(cap * 0.5)), focus: 'Recovery' });
         // override blocks for a true recovery template
-        s.blocks = [
-          { type: 'warmup', items: ['walk 5-10min easy'] },
-          { type: 'recovery', items: ['breathing 5min', 'mobility flow 10min'] },
-          { type: 'cooldown', items: ['gentle stretch 5min'] }
-        ];
+        s.policy = { ...(s.policy||{}), blocked: isBlocked, readiness };
         out.push(s);
       } else {
-        const s = await this.generateSession({ dateISO: iso, plan, recovery, capMin: cap, focus: weeklyFocus[i] || 'Strength' });
+        const baseFocus = weeklyFocus[i] || 'Strength';
+        const s = await this.generateSession({ dateISO: iso, plan, recovery, capMin: isDeload ? Math.round(cap * 0.8) : cap, focus: baseFocus });
+        if (isDeload && s.blocks) {
+          // reduce sets by ~40% for deload
+          s.blocks = s.blocks.map((b: any) => b.exercises ? { ...b, exercises: b.exercises.map((ex: any)=> ({ ...ex, sets: Math.max(1, Math.round((ex.sets ?? 1)*0.6)) })) } : b );
+          s.policy = { ...(s.policy||{}), deload: true };
+        }
         out.push(s);
       }
     }

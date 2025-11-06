@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { format, startOfWeek } from 'date-fns';
 import { exercise } from '@/services/exercise';
-import { getCurrentPlan, getRecoverySnapshot, saveSession, getSessionById, upsertSessionPreservingStatus } from '@/services/storage';
+import { getCurrentPlan, getRecoverySnapshot, getSessionById, upsertSessionPreservingStatus } from '@/services/storage';
 import { recoveryService } from '@/services/recovery';
 import { driveSync } from '@/services/driveSync';
 import { syncUpload } from '@/services/sync';
@@ -59,7 +59,10 @@ export default function Weekly() {
     <div className="grid gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Weekly Overview</h1>
-        {status && <div className="text-sm text-muted">{status}</div>}
+        <div className="flex items-center gap-2">
+          <button className="btn btn-outline btn-sm" onClick={async()=>{ try { setStatus('Syncing…'); await syncUpload(); setStatus('Synced'); } catch { setStatus('Sync failed'); } }} disabled={!driveSync.hasToken}>Sync now</button>
+          {status && <div className="text-sm text-muted">{status}</div>}
+        </div>
       </div>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
         {week?.map((s) => (

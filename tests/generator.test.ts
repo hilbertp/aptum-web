@@ -26,6 +26,19 @@ describe('exercise.generateWeekAndValidate', () => {
     expect(condDays).toBeGreaterThanOrEqual(3);
   });
 
+  it('applies deload reductions on every 4th week', async () => {
+    vi.mock('@/services/storage', async () => ({ listBlockers: async () => [] }));
+    const recovery: Recovery = { systemic: { readiness: 80 } } as any;
+    // pick a startISO that is 4 weeks after plan.cycle.startISO
+    const deloadStart = '2025-11-24';
+    const { exercise } = await import('@/services/exercise');
+    const out = await exercise.generateWeekAndValidate({ startISO: deloadStart, plan, recovery, capMin: 60 });
+    expect(out).toHaveLength(7);
+    // check at least one strength session has reduced sets (policy.deload)
+    const strength = out.find(s=>s.focus==='Strength');
+    expect(strength?.policy?.deload).toBeTruthy();
+  });
+
   it('scales cap down for low readiness', async () => {
     vi.mock('@/services/storage', async () => ({ listBlockers: async () => [] }));
     const recovery: Recovery = { systemic: { readiness: 25 } } as any;

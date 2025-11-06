@@ -3,6 +3,8 @@ import { format } from 'date-fns';
 import type { Session as SessionT } from '@/schemas/product';
 import { listSessionsByDate, setSessionStatus } from '@/services/storage';
 import { tracking } from '@/services/tracking';
+import { driveSync } from '@/services/driveSync';
+import { syncUpload } from '@/services/sync';
 
 export default function Session() {
   const [session, setSession] = useState<SessionT | null>(null);
@@ -59,6 +61,7 @@ export default function Session() {
                 await setSessionStatus(session.sessionId, 'completed');
                 await tracking.logSessionStatus({ eventId: crypto.randomUUID(), sessionId: session.sessionId, status: 'completed', ts: Date.now() });
               }} disabled={status==='completed'}>Complete</button>
+              <button className="btn btn-outline w-full" onClick={async()=>{ try { await syncUpload(); } catch (e) { console.error(e); } }} disabled={!driveSync.hasToken}>Sync now</button>
             </div>
             <div className="text-xs text-muted mt-2">Status: {status}</div>
           </aside>
@@ -68,7 +71,7 @@ export default function Session() {
   );
 }
 
-function Section({ block, sessionId, progress, onLog }: { block: any; sessionId?: string; progress: Record<string, number>; onLog: (exIdx: number, setIdx: number, payload: any) => Promise<void> }) {
+function Section({ block, sessionId: _sessionId, progress, onLog }: { block: any; sessionId?: string; progress: Record<string, number>; onLog: (exIdx: number, setIdx: number, payload: any) => Promise<void> }) {
   return (
     <div>
       <h2 className="font-semibold mb-1 capitalize">{block.type}</h2>
