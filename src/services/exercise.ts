@@ -1,4 +1,6 @@
 import type { Plan, Recovery, Session } from '@/schemas/product';
+import { listBlockers } from '@/services/storage';
+import { RRule } from 'rrule';
 
 export interface ExerciseService {
   generateSession(input: {
@@ -33,14 +35,51 @@ export const exercise: ExerciseService = {
     return session;
   },
   async generateWeekAndValidate({ startISO, plan, recovery, capMin }) {
-    // MVP: generate 7 consecutive sessions using generateSession
     const start = new Date(startISO);
     const out: Session[] = [];
+    const blockers = await listBlockers<any>();
+
+    const occursOn = (rruleStr: string | undefined, date: Date) => {
+      if (!rruleStr) return false;
+      try {
+        const r = RRule.fromString(rruleStr);
+        const startOfDay = new Date(date); startOfDay.setHours(0,0,0,0);
+        const endOfDay = new Date(date); endOfDay.setHours(23,59,59,999);
+        const between = r.between(startOfDay, endOfDay, true);
+        return between.length > 0;
+      } catch {
+        return false;
+      }
+    };
+
+    const adjustCap = (base: number, readiness: number) => {
+      if (readiness <= 30) return Math.max(20, Math.round(base * 0.5));
+      if (readiness <= 50) return Math.round(base * 0.75);
+      if (readiness >= 85) return Math.round(base * 1.25);
+      return base;
+    };
+
     for (let i = 0; i < 7; i++) {
       const d = new Date(start); d.setDate(start.getDate() + i);
       const iso = d.toISOString().slice(0, 10);
-      const s = await this.generateSession({ dateISO: iso, plan, recovery, capMin });
-      out.push(s);
+
+      const isBlocked = blockers.some((b: any) => occursOn(b.rrule, d) || b.type === 'RecoveryDay' || b.fatigue === 'High');
+      const readiness = recovery?.systemic?.readiness ?? 80;
+      const cap = adjustCap(capMin, readiness);
+
+      if (isBlocked || readiness <= 25) {
+        const s = await this.generateSession({ dateISO: iso, plan, recovery, capMin: Math.max(25, Math.round(cap * 0.5)), focus: 'Recovery' });
+        // override blocks for a true recovery template
+        s.blocks = [
+          { type: 'warmup', items: ['walk 5-10min easy'] },
+          { type: 'recovery', items: ['breathing 5min', 'mobility flow 10min'] },
+          { type: 'cooldown', items: ['gentle stretch 5min'] }
+        ];
+        out.push(s);
+      } else {
+        const s = await this.generateSession({ dateISO: iso, plan, recovery, capMin: cap });
+        out.push(s);
+      }
     }
     return out;
   }

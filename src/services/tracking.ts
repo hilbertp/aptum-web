@@ -1,11 +1,13 @@
-export type SetEvent = { eventId: string; sessionId: string; ex: number; set: number; reps?: number; load?: { kg?: number; lb?: number }; rir?: number; ts: number };
+export type SetEvent = { eventId: string; sessionId: string; ex: number; set: number; reps?: number; timeSec?: number; load?: { kg?: number; lb?: number }; rir?: number; ts: number };
 
 export interface TrackingService {
   logSet(ev: SetEvent): Promise<void>;
 }
 
+import { put } from '@/services/storage';
+
 export const tracking: TrackingService = {
-  async logSet(_ev) {
-    // TODO: write to IndexedDB and queue for Drive sync
+  async logSet(ev) {
+    await put('trackingEvents', ev.eventId, ev);
   }
 };
