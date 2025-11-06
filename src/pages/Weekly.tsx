@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { format, startOfWeek } from 'date-fns';
 import { exercise } from '@/services/exercise';
-import { getCurrentPlan, getRecoverySnapshot, getSessionById, upsertSessionPreservingStatus } from '@/services/storage';
+import { getCurrentPlan, getRecoverySnapshot, getSessionById, upsertSessionPreservingStatus, getSettings } from '@/services/storage';
 import { recoveryService } from '@/services/recovery';
 import { driveSync } from '@/services/driveSync';
 import { syncUpload } from '@/services/sync';
@@ -36,7 +36,8 @@ export default function Weekly() {
       }));
       setWeek(withStatus);
       await Promise.all(withStatus.map((s) => upsertSessionPreservingStatus(s)));
-      if (driveSync.hasToken) {
+      const settings = await getSettings<any>();
+      if (driveSync.hasToken && settings?.autoSync) {
         try { setStatus('Syncing…'); await syncUpload(); setStatus('Synced'); } catch { setStatus('Sync failed'); }
       } else {
         setStatus('');
@@ -73,6 +74,9 @@ export default function Weekly() {
               <div className="absolute top-2 right-3 text-xs px-2 py-0.5 rounded border border-line bg-white">
                 {(s as any).status === 'completed' ? 'Completed' : (s as any).status === 'in_progress' ? 'In progress' : (s as any).status === 'aborted' ? 'Aborted' : 'Planned'}
               </div>
+            )}
+            { (s as any)?.policy?.deload && (
+              <div className="absolute top-2 left-3 text-[10px] px-2 py-0.5 rounded border border-line bg-white">Deload</div>
             )}
             <ul className="mt-2 text-sm list-disc pl-5">
               {s.blocks.slice(0,3).map((b: any, i: number) => (

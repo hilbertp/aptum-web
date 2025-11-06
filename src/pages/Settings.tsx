@@ -10,14 +10,16 @@ export default function Settings() {
         <BYOKCard />
         <ExportImportCard />
         <DriveSyncCard />
+        <SyncPrefsCard />
       </div>
     </div>
   );
 }
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { syncUpload, syncDownload, exportZip, importLocalZip } from '@/services/sync';
 import { driveSync } from '@/services/driveSync';
+import { getSettings, setSettings } from '@/services/storage';
 
 function DriveSyncCard() {
   const [status, setStatus] = useState<string>('Idle');
@@ -108,6 +110,32 @@ function ExportImportCard() {
         </label>
       </div>
       {status && <div className="text-xs text-muted mt-2">{status}</div>}
+    </div>
+  );
+}
+
+function SyncPrefsCard() {
+  const [enabled, setEnabled] = useState<boolean>(false);
+  const [status, setStatus] = useState<string>('');
+  useEffect(() => {
+    (async () => {
+      const s = await getSettings<any>();
+      setEnabled(!!s.autoSync);
+    })();
+  }, []);
+  const toggle = async () => {
+    const next = !enabled; setEnabled(next);
+    const s = await getSettings<any>();
+    s.autoSync = next; await setSettings(s); setStatus('Saved'); setTimeout(()=>setStatus(''), 1200);
+  };
+  return (
+    <div className="card p-4">
+      <h2 className="font-semibold">Sync Preferences</h2>
+      <div className="text-sm text-muted">Automatically sync to Drive after generating a week or completing a session.</div>
+      <div className="mt-2 flex items-center gap-2">
+        <button className={'btn ' + (enabled ? 'btn-primary' : 'btn-outline')} onClick={toggle}>{enabled ? 'Auto Sync: ON' : 'Auto Sync: OFF'}</button>
+        {status && <span className="text-xs text-muted">{status}</span>}
+      </div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import type { Session as SessionT } from '@/schemas/product';
-import { listSessionsByDate, setSessionStatus } from '@/services/storage';
+import { listSessionsByDate, setSessionStatus, getSettings } from '@/services/storage';
 import { tracking } from '@/services/tracking';
 import { driveSync } from '@/services/driveSync';
 import { syncUpload } from '@/services/sync';
@@ -50,16 +50,19 @@ export default function Session() {
                 if (!session) return; setStatus('in_progress');
                 await setSessionStatus(session.sessionId, 'in_progress');
                 await tracking.logSessionStatus({ eventId: crypto.randomUUID(), sessionId: session.sessionId, status: 'in_progress', ts: Date.now() });
+                const s = await getSettings<any>(); if (driveSync.hasToken && s?.autoSync) { try { await syncUpload(); } catch (e) { console.error(e); } }
               }} disabled={status==='in_progress'}>Start Session</button>
               <button className="btn btn-outline w-full" onClick={async()=>{
                 if (!session) return; setStatus('aborted');
                 await setSessionStatus(session.sessionId, 'aborted');
                 await tracking.logSessionStatus({ eventId: crypto.randomUUID(), sessionId: session.sessionId, status: 'aborted', ts: Date.now() });
+                const s = await getSettings<any>(); if (driveSync.hasToken && s?.autoSync) { try { await syncUpload(); } catch (e) { console.error(e); } }
               }}>Abort (Partial)</button>
               <button className="btn btn-outline w-full" onClick={async()=>{
                 if (!session) return; setStatus('completed');
                 await setSessionStatus(session.sessionId, 'completed');
                 await tracking.logSessionStatus({ eventId: crypto.randomUUID(), sessionId: session.sessionId, status: 'completed', ts: Date.now() });
+                const s = await getSettings<any>(); if (driveSync.hasToken && s?.autoSync) { try { await syncUpload(); } catch (e) { console.error(e); } }
               }} disabled={status==='completed'}>Complete</button>
               <button className="btn btn-outline w-full" onClick={async()=>{ try { await syncUpload(); } catch (e) { console.error(e); } }} disabled={!driveSync.hasToken}>Sync now</button>
             </div>
