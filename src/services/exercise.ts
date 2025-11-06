@@ -42,6 +42,14 @@ export const exercise: ExerciseService = {
     const occursOn = (rruleStr: string | undefined, date: Date) => {
       if (!rruleStr) return false;
       try {
+        // Fast path: BYDAY weekly match without heavy iteration
+        const m = rruleStr.match(/BYDAY=([^;]+)/);
+        if (m) {
+          const bydays = m[1].split(',');
+          const map = ['SU','MO','TU','WE','TH','FR','SA'];
+          const dow = map[date.getDay()];
+          if (bydays.includes(dow)) return true;
+        }
         const r = RRule.fromString(rruleStr);
         const startOfDay = new Date(date); startOfDay.setHours(0,0,0,0);
         const endOfDay = new Date(date); endOfDay.setHours(23,59,59,999);
