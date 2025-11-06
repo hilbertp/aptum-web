@@ -4,15 +4,11 @@ export default function Welcome() {
   const nav = useNavigate();
   return (
     <div className="grid gap-4">
-      <h1 className="text-2xl font-bold">Welcome to APTUM</h1>
-      <p className="text-sm text-muted">Build your private, coach-guided training on your device. You can connect Google Drive for encrypted backups, and optionally add your own AI key. You can modify everything later in Settings.</p>
-      <ul className="list-disc pl-5 text-sm text-muted">
-        <li>Client-only PWA with offline-first storage</li>
-        <li>Encrypted sync to your Google Drive App Folder</li>
-        <li>Optional BYOK for AI coach</li>
-      </ul>
+      <h1 className="text-2xl font-bold">Welcome to Aptum</h1>
+      <h2 className="text-lg font-semibold">…where health no longer depletes. Aptum learns your biology to align training, recovery, and nutrition with longevity.</h2>
+      <p className="text-sm text-muted">Your operating system for longevity.</p>
       <div>
-        <button className="btn btn-primary" onClick={()=>nav('/onboarding/profile')}>Begin Setup</button>
+        <button className="btn btn-primary" onClick={()=>nav('/onboarding/profile')}>Begin your intelligent life</button>
       </div>
     </div>
   );
