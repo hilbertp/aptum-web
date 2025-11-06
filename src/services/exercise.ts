@@ -8,6 +8,12 @@ export interface ExerciseService {
     capMin: number;
     focus?: string;
   }): Promise<Session>;
+  generateWeekAndValidate(input: {
+    startISO: string; // Monday or today
+    plan: Plan;
+    recovery: Recovery;
+    capMin: number;
+  }): Promise<Session[]>;
 }
 
 export const exercise: ExerciseService = {
@@ -25,5 +31,17 @@ export const exercise: ExerciseService = {
       ]
     } as Session;
     return session;
+  },
+  async generateWeekAndValidate({ startISO, plan, recovery, capMin }) {
+    // MVP: generate 7 consecutive sessions using generateSession
+    const start = new Date(startISO);
+    const out: Session[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start); d.setDate(start.getDate() + i);
+      const iso = d.toISOString().slice(0, 10);
+      const s = await this.generateSession({ dateISO: iso, plan, recovery, capMin });
+      out.push(s);
+    }
+    return out;
   }
 };
