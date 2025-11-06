@@ -3,7 +3,11 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 const steps = [
   { path: '/onboarding/welcome', label: 'Welcome' },
   { path: '/onboarding/profile', label: 'Profile' },
-  { path: '/onboarding/connect', label: 'Connect' }
+  { path: '/onboarding/connect', label: 'Connect' },
+  { path: '/onboarding/goals', label: 'Goals' },
+  { path: '/onboarding/plan', label: 'Plan' },
+  { path: '/onboarding/recovery-setup', label: 'Recovery' },
+  { path: '/onboarding/preview', label: 'Preview' }
 ];
 
 export default function OnboardingShell() {
@@ -46,11 +50,7 @@ export default function OnboardingShell() {
       <footer className="sticky bottom-0 inset-x-0 border-t border-line bg-white/90 backdrop-blur">
         <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
           <button className="btn btn-outline" onClick={prev} disabled={idx === 0}>Back</button>
-          {idx < steps.length - 1 ? (
-            <button className="btn btn-primary" onClick={next}>Continue</button>
-          ) : (
-            <div className="text-xs text-muted">Use the Finish button above when ready</div>
-          )}
+          <button className="btn btn-primary" onClick={next} disabled={idx >= steps.length - 1}>{idx >= steps.length - 1 ? 'Done' : 'Continue'}</button>
         </div>
       </footer>
     </div>

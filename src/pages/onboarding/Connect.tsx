@@ -2,13 +2,11 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/stores/auth';
 import { signInWithGoogle } from '@/services/auth';
 import { getAIKey, setAIKey, clearAIKey } from '@/services/byok';
-import { getSettings, setSettings } from '@/services/storage';
-import { useNavigate } from 'react-router-dom';
+ 
 
 export default function Connect() {
   const auth = useAuth();
   const [aiKey, setKey] = useState<string>('');
-  const nav = useNavigate();
 
   useEffect(() => {
     setKey(getAIKey() || '');
@@ -20,12 +18,7 @@ export default function Connect() {
     // Saved notice is optional for MVP; no-op visual feedback for now
   };
 
-  const finish = async () => {
-    const s = await getSettings<any>();
-    s.onboardingCompleted = true;
-    await setSettings(s);
-    nav('/week', { replace: true });
-  };
+  
 
   return (
     <div className="grid gap-4">
@@ -56,9 +49,7 @@ export default function Connect() {
           <div className="text-xs text-muted mt-1">You can leave this blank and add it later in Settings.</div>
         </div>
       </div>
-      <div className="flex items-center justify-end">
-        <button className="btn btn-primary" onClick={finish}>Finish Setup</button>
-      </div>
+      <div className="text-xs text-muted">Continue to set your goals and plan next.</div>
     </div>
   );
 }
