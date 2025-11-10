@@ -23,8 +23,9 @@ import json
 import os
 import re
 import time
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 from urllib.request import urlopen, Request
+from urllib.error import HTTPError, URLError
 
 
 PAPER_LIST = r'''
@@ -119,6 +120,27 @@ def ensure_dir(p: str):
     os.makedirs(p, exist_ok=True)
 
 
+def http_fetch(url: str, retries: int = 3, sleep_s: float = 0.5) -> Tuple[Optional[bytes], str]:
+    """Fetch a URL with basic retry; returns (bytes or None, content_type)."""
+    last_ct = ""
+    for attempt in range(retries):
+        try:
+            req = Request(url, headers={"User-Agent": "aptum-fetch/1.0"})
+            with urlopen(req, timeout=30) as r:
+                last_ct = (r.headers.get("Content-Type") or "").lower()
+                data = r.read()
+            return data, last_ct
+        except (HTTPError, URLError) as e:
+            if attempt == retries - 1:
+                return None, last_ct
+            time.sleep(sleep_s * (attempt + 1))
+        except Exception:
+            if attempt == retries - 1:
+                return None, last_ct
+            time.sleep(sleep_s * (attempt + 1))
+    return None, last_ct
+
+
 def main():
     pmids = re.findall(r"PMID:\s*(\d+)", PAPER_LIST)
     pmids_unique = list(dict.fromkeys(pmids))
@@ -138,7 +160,7 @@ def main():
         authors = rec.get("authorString") or ""
         full_urls = rec.get("fullTextUrlList", {}).get("fullTextUrl", [])
 
-        # Prefer Europe PMC cached PDF via PMCID if available
+        # Prefer PMC mirror via PMCID if available (pmc.ncbi.nlm.nih.gov tends to be robust)
         pdf_url = None
         pmcid = None
         ftids = rec.get("fullTextIdList", {}).get("fullTextId", [])
@@ -148,27 +170,42 @@ def main():
                     pmcid = str(fid).upper()
                     break
         if pmcid:
-            pdf_url = f"https://europepmc.org/articles/{pmcid}/pdf"
+            # Try US PMC first, then Europe PMC variants
+            candidates = [
+                f"https://pmc.ncbi.nlm.nih.gov/articles/{pmcid}/pdf",
+                f"https://europepmc.org/articles/{pmcid}/pdf",
+                f"https://europepmc.org/articles/{pmcid}?pdf=render",
+            ]
+            # choose the first we can fetch successfully below
         else:
             for u in full_urls:
                 if u.get("documentStyle") == "pdf" and u.get("availabilityCode") in ("OA", "S", "FREE"):
                     pdf_url = u.get("url")
                     break
 
-        save_local = is_oa and lic in FREE_LICENSES and pdf_url
+        save_local = is_oa and lic in FREE_LICENSES and (pmcid or pdf_url)
         local_path = None
         download_error: Optional[str] = None
         if save_local:
             free_count += 1
             local_path = f"public/papers/{pmid}.pdf"
             try:
-                req = Request(pdf_url, headers={"User-Agent": "aptum-fetch/1.0"})
-                with urlopen(req) as r:
-                    ct = (r.headers.get("Content-Type") or "").lower()
-                    data = r.read()
-                # verify looks like a PDF
-                if not data.startswith(b"%PDF-") and "pdf" not in ct:
-                    raise RuntimeError(f"not a pdf (ct={ct})")
+                data = None
+                ct = ""
+                tried = []
+                if pmcid:
+                    for cand in candidates:
+                        tried.append(cand)
+                        data, ct = http_fetch(cand)
+                        if data and (data.startswith(b"%PDF-") or "pdf" in ct):
+                            pdf_url = cand
+                            break
+                        data = None
+                if data is None and pdf_url:
+                    tried.append(pdf_url)
+                    data, ct = http_fetch(pdf_url)
+                if not data or (not data.startswith(b"%PDF-") and "pdf" not in ct):
+                    raise RuntimeError(f"not a pdf (ct={ct}) from {pdf_url or 'pmcid candidates'}")
                 with open(local_path, "wb") as f:
                     f.write(data)
                 print(f"[{i:02d}] saved {pmid}.pdf under free license {lic}")
@@ -275,9 +312,9 @@ def main():
     lines.append("Papers with other open-access licenses (e.g., CC BY-NC-ND) are linked externally.")
     lines.append("\nFor free-licensed papers we also provide extracted Markdown in public/papers_md/ for easier search (best-effort extraction).\n")
     lines.append("")
-    lines.append("| Title | PMID | License | Link |")
-    lines.append("|---|---:|---|---|")
-    for m in meta_all:
+    lines.append("| No. | Title | PMID | License | Link |")
+    lines.append("|--:|---|---:|---|---|")
+    for idx, m in enumerate(meta_all, 1):
         title = (m.get("title") or "").replace("|", "-")
         pmid = m["pmid"]
         lic = m.get("license") or ""
@@ -285,7 +322,7 @@ def main():
             link = f"/public/papers/{pmid}.pdf"
         else:
             link = m.get("pdf_url") or m.get("source")
-        lines.append(f"| {title} | {pmid} | {lic} | {link} |")
+        lines.append(f"| {idx} | {title} | {pmid} | {lic} | {link} |")
 
     with open("docs/papers/README.md", "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
