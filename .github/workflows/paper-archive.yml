@@ -2,7 +2,8 @@ name: Build paper archive
 
 on:
   workflow_dispatch:
-  # schedule removed for now to keep noise low; can re-enable later
+  schedule:
+    - cron: '15 3 * * 1' # weekly Monday 03:15 UTC
 
 jobs:
   archive:
@@ -41,18 +42,14 @@ jobs:
           test -f docs/papers/README.md
           test -f docs/papers/AUDIT.json || echo '{ }' > docs/papers/AUDIT.json
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "feat(papers): update free-licensed papers archive, index and audit"
-          title: "feat: update free-licensed papers archive"
-          body: |
-            This PR updates the free-licensed paper archive.
-            - Downloads CC BY/CC0/CC BY-SA PDFs where possible
-            - Regenerates metadata index and README table
-            - Produces a license audit (docs/papers/AUDIT.json)
-
-            Notes: Some CC BY publishers (e.g., MDPI) block automated downloads. These are linked externally and marked in the audit.
-          branch: feat/papers-archive
-          delete-branch: true
+      - name: Commit and push changes to main
+        run: |
+          git config user.name "$GIT_AUTHOR_NAME"
+          git config user.email "$GIT_AUTHOR_EMAIL"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "chore(papers): update archive, index and audit [skip ci]"
+          git push origin HEAD:main
