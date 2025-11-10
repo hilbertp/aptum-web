@@ -2,6 +2,9 @@ name: Build paper notes (restricted licenses)
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'paper-notes.trigger'
 
 jobs:
   notes:
