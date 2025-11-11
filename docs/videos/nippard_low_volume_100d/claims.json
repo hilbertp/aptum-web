@@ -1,0 +1,23 @@
+[
+  {
+    "id": "claim_low_vol_cut",
+    "text": "Under caloric deficit, low weekly set volume combined with high effort (near failure) can preserve strength and lean mass in trained individuals over short periods.",
+    "stance": "proposed_by_creator",
+    "strength": "moderate",
+    "source": "yt_DzjWEn2BS_k"
+  },
+  {
+    "id": "claim_effort_quality",
+    "text": "When volume is constrained, maintaining high proximity to failure and focusing on efficient compound lifts is critical to preserve performance.",
+    "stance": "context_from_video",
+    "strength": "moderate",
+    "source": "yt_DzjWEn2BS_k"
+  },
+  {
+    "id": "claim_volume_context",
+    "text": "Outside of energy deficit scenarios, higher weekly set volumes generally support hypertrophy progression; low\u2011volume approaches during cuts are situational, not universal.",
+    "stance": "context_from_video",
+    "strength": "strong",
+    "source": "yt_DzjWEn2BS_k"
+  }
+]

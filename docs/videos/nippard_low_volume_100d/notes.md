@@ -1,0 +1,10 @@
+- Defines working volume as the number of hard sets per muscle per week.
+- Traditional recommendations often cite ~10–20 sets/week for hypertrophy; here the approach is roughly ~6 sets/week during a 100‑day cut.
+- Effort is very high: sets are taken to near failure (low RIR), prioritizing compound lifts with consistent technique.
+- Reported outcomes over the 100 days: fat mass decreased, strength was largely maintained, and lean mass was roughly stable with small fluctuations.
+- Practical takeaway: during energy deficit, reducing volume while raising effort and lift quality can preserve muscle performance and recovery for trained lifters.
+- Monitoring proximity to failure (RIR / bar velocity) helps ensure sufficient stimulus when volume is low.
+- Exercise selection favors low‑redundancy movements that load target muscles efficiently; accessories are pared back.
+- Recovery management (sleep, protein sufficiency, and strategic deloads) is emphasized to keep performance stable while calories are low.
+- Caveats: n=1 design, non‑controlled diet and measurement methods; results may not generalize to all muscles, sports, or long time frames.
+- On maintenance or surplus phases, higher volumes may still be preferable for hypertrophy progression; low‑volume cutting is a situational strategy.

@@ -1,0 +1,30 @@
+[
+  {
+    "claim_id": "claim_low_vol_cut",
+    "supporting_pmids": [
+      "39833537",
+      "38563729",
+      "38418370",
+      "40573103"
+    ],
+    "notes": "Deload/maintenance literature supports lower volume phases; RIR/velocity papers support using high effort as a proxy when sets are few; fasting meta\u2011analysis shows strength maintenance is possible in deficit contexts."
+  },
+  {
+    "claim_id": "claim_effort_quality",
+    "supporting_pmids": [
+      "38563729",
+      "38418370",
+      "37989900"
+    ],
+    "notes": "RIR scales and RIR\u2013velocity relationships inform monitoring; coach planning survey provides context for how practitioners prioritize effort/quality."
+  },
+  {
+    "claim_id": "claim_volume_context",
+    "supporting_pmids": [
+      "35445953",
+      "33467283",
+      "35244801"
+    ],
+    "caveats": "These works discuss periodization and load organization more than strict set\u2011volume dose response; they contextualize why higher volumes may be used outside deficits."
+  }
+]

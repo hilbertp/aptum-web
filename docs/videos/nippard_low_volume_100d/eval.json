@@ -1,0 +1,42 @@
+[
+  {
+    "q": "Design a 6\u20138 set per muscle per week program for a trained athlete on a 12\u2011week cut while preserving strength. Cite sources.",
+    "expect": [
+      "low volume",
+      "near\u2011failure effort",
+      "exercise selection rationale",
+      "deload logic",
+      "citations"
+    ],
+    "must_cite_pmids": [
+      "39833537",
+      "38418370"
+    ]
+  },
+  {
+    "q": "When is higher weekly volume still preferable, and why can very low volume be risky? Provide trade\u2011offs and cite.",
+    "expect": [
+      "bulk/maintenance scenarios",
+      "skill practice needs",
+      "injury and fatigue trade\u2011offs",
+      "monitoring"
+    ],
+    "must_cite_pmids": [
+      "33467283",
+      "35244801"
+    ]
+  },
+  {
+    "q": "Outline a monitoring plan to ensure sufficient stimulus on low\u2011volume cutting blocks (metrics and thresholds).",
+    "expect": [
+      "RIR targets",
+      "velocity loss bands",
+      "weekly performance markers",
+      "deload triggers"
+    ],
+    "must_cite_pmids": [
+      "38563729",
+      "38418370"
+    ]
+  }
+]
