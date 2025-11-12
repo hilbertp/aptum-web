@@ -18,7 +18,8 @@
       "@/pages/*": ["src/pages/*"],
       "@/services/*": ["src/services/*"],
       "@/stores/*": ["src/stores/*"],
-      "@/schemas/*": ["src/schemas/*"]
+      "@/schemas/*": ["src/schemas/*"],
+      "@/content/*": ["src/content/*"]
     }
   },
   "include": ["src"]

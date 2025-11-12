@@ -26,22 +26,39 @@ import Schedule from './pages/Schedule';
 import Session from './pages/Session';
 import Recovery from './pages/Recovery';
 import Settings from './pages/Settings';
-import Onboarding from './pages/Onboarding';
 import Weekly from './pages/Weekly';
+import OnboardingShell from './pages/OnboardingShell';
+import RequireOnboarding from './ui/RequireOnboarding';
+import Welcome from './pages/onboarding/Welcome';
+import Connect from './pages/onboarding/Connect';
+import Profile from './pages/onboarding/Profile';
+import Goals from './pages/onboarding/Goals';
+import Plan from './pages/onboarding/Plan';
+import RecoverySetup from './pages/onboarding/RecoverySetup';
+import Preview from './pages/onboarding/Preview';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <AppShell>
         <Routes>
-          <Route path="/" element={<Navigate to="/onboarding" replace />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/strategy" element={<Strategy />} />
-          <Route path="/schedule" element={<Schedule />} />
-          <Route path="/session" element={<Session />} />
-          <Route path="/week" element={<Weekly />} />
-          <Route path="/recovery" element={<Recovery />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/" element={<Navigate to="/strategy" replace />} />
+          <Route path="/onboarding" element={<OnboardingShell />}>
+            <Route index element={<Navigate to="/onboarding/welcome" replace />} />
+            <Route path="welcome" element={<Welcome />} />
+            <Route path="connect" element={<Connect />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="goals" element={<Goals />} />
+            <Route path="plan" element={<Plan />} />
+            <Route path="recovery-setup" element={<RecoverySetup />} />
+            <Route path="preview" element={<Preview />} />
+          </Route>
+          <Route path="/strategy" element={<RequireOnboarding><Strategy /></RequireOnboarding>} />
+          <Route path="/schedule" element={<RequireOnboarding><Schedule /></RequireOnboarding>} />
+          <Route path="/session" element={<RequireOnboarding><Session /></RequireOnboarding>} />
+          <Route path="/week" element={<RequireOnboarding><Weekly /></RequireOnboarding>} />
+          <Route path="/recovery" element={<RequireOnboarding><Recovery /></RequireOnboarding>} />
+          <Route path="/settings" element={<RequireOnboarding><Settings /></RequireOnboarding>} />
         </Routes>
       </AppShell>
     </BrowserRouter>
