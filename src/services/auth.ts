@@ -7,12 +7,30 @@ declare global {
   }
 }
 
-const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string;
+function getGoogleClientId(): string {
+  // Priority: env → meta tag → localStorage (dev)
+  const envId = (import.meta.env.VITE_GOOGLE_CLIENT_ID as string) || '';
+  if (envId) return envId;
+  const metaId = (document.querySelector('meta[name="google-signin-client_id"]') as HTMLMetaElement | null)?.content || '';
+  if (metaId) return metaId;
+  try {
+    const ls = window.localStorage?.getItem('gis.client_id') || '';
+    if (ls) return ls;
+  } catch {}
+  return '';
+}
+
 const DRIVE_SCOPES = (import.meta.env.VITE_GOOGLE_DRIVE_SCOPES as string) || 'https://www.googleapis.com/auth/drive.appdata';
 
 export function signInWithGoogle() {
   const auth = useAuth.getState();
   auth.setSigningIn();
+
+  const CLIENT_ID = getGoogleClientId();
+  if (!CLIENT_ID) {
+    useAuth.getState().setError('Missing Google Client ID. Set it in Settings (dev) or provide VITE_GOOGLE_CLIENT_ID.');
+    return;
+  }
 
   const tokenClient = window.google?.accounts?.oauth2?.initTokenClient({
     client_id: CLIENT_ID,
@@ -29,7 +47,7 @@ export function signInWithGoogle() {
   });
 
   if (!tokenClient) {
-    auth.setError('Google Identity Services not loaded');
+    auth.setError('Google Identity Services (GIS) not loaded. Check the GIS script and allowed origins.');
     return;
   }
   tokenClient.requestAccessToken();

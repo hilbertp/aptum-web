@@ -18,6 +18,12 @@ export default function Settings() {
   const mask = (k: string) => (k ? `${k.slice(0, 6)}…${k.slice(-4)}` : '');
 
   const settings = useSettings();
+  const [gisClientId, setGisClientId] = useState<string>(() => {
+    try { return localStorage.getItem('gis.client_id') || ''; } catch { return ''; }
+  });
+  const saveGis = () => {
+    try { localStorage.setItem('gis.client_id', gisClientId || ''); setStatus('Saved Google Client ID.'); setTimeout(() => setStatus(null), 2000); } catch {}
+  };
 
   const save = () => {
     byok.set({ apiKey });
@@ -79,6 +85,17 @@ export default function Settings() {
             <button className="btn" onClick={async () => { byok.set({ apiKey }); await testConnection(); }} disabled={testing} type="button">{testing ? 'Testing…' : 'Test Connection'}</button>
           </div>
           {status && <div className="text-sm text-muted">{status}</div>}
+        </div>
+        <div className="card p-4 grid gap-3">
+          <h2 className="font-semibold">Google OAuth (dev)</h2>
+          <div className="text-sm text-muted">Set a Google Client ID for testing on this device if it isn’t provided by the environment.</div>
+          <label className="grid gap-1 max-w-xl">
+            <span className="text-sm">Client ID</span>
+            <input className="input" value={gisClientId} onChange={e => setGisClientId(e.target.value)} placeholder="12345-abcdefg.apps.googleusercontent.com" />
+          </label>
+          <div className="flex gap-2">
+            <button className="btn" onClick={saveGis} type="button">Save</button>
+          </div>
         </div>
         <div className="card p-4">
           <h2 className="font-semibold">Export / Import</h2>
