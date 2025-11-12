@@ -2,6 +2,11 @@ name: Build KB Index
 
 on:
   workflow_dispatch:
+    inputs:
+      force:
+        description: 'Force rebuild (ignores missing OPENAI_API_KEY)'
+        required: false
+        default: 'false'
   push:
     paths:
       - 'build-kb-index.trigger'
@@ -10,6 +15,13 @@ on:
       - 'docs/papers_notes/**'
       - 'public/papers_md/**'
 
+permissions:
+  contents: write
+
+concurrency:
+  group: kb-index
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,21 +29,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
+      - name: Decide build path
+        id: decide
+        run: |
+          echo "event=${{ github.event_name }}" >> $GITHUB_OUTPUT
+          echo "force=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force == 'true' }}" >> $GITHUB_OUTPUT
+          echo "has_key=${{ secrets.OPENAI_API_KEY != '' }}" >> $GITHUB_OUTPUT
+
       - name: Build KB index
-        if: ${{ secrets.OPENAI_API_KEY != '' }}
+        if: ${{ steps.decide.outputs.has_key == 'true' || steps.decide.outputs.force == 'true' }}
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           python scripts/build_kb_index.py
 
-      - name: Skip build (no OPENAI_API_KEY)
-        if: ${{ secrets.OPENAI_API_KEY == '' }}
-        run: echo "No OPENAI_API_KEY secret found. Skipping KB index build."
+      - name: Note missing secret
+        if: ${{ steps.decide.outputs.has_key != 'true' && steps.decide.outputs.force != 'true' }}
+        run: echo "No OPENAI_API_KEY and not forced. Skipping KB index build."
 
       - name: Commit and push changes
         run: |
