@@ -9,13 +9,15 @@ if (import.meta.env.DEV) {
     try {
       if ('serviceWorker' in navigator) {
         const regs = await navigator.serviceWorker.getRegistrations();
-        await Promise.all(regs.map(r => r.unregister().catch(() => {})));
+        await Promise.all(regs.map(r => r.unregister().catch(() => undefined)));
       }
       if ('caches' in window) {
         const keys = await caches.keys();
         await Promise.all(keys.map(k => caches.delete(k)));
       }
-    } catch {}
+    } catch (err) {
+      void err;
+    }
   })();
 }
 import AppShell from './ui/AppShell';

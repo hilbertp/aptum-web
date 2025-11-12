@@ -19,10 +19,16 @@ export default function Settings() {
 
   const settings = useSettings();
   const [gisClientId, setGisClientId] = useState<string>(() => {
-    try { return localStorage.getItem('gis.client_id') || ''; } catch { return ''; }
+    try { return localStorage.getItem('gis.client_id') || ''; } catch (e) { void e; return ''; }
   });
   const saveGis = () => {
-    try { localStorage.setItem('gis.client_id', gisClientId || ''); setStatus('Saved Google Client ID.'); setTimeout(() => setStatus(null), 2000); } catch {}
+    try {
+      localStorage.setItem('gis.client_id', gisClientId || '');
+      setStatus('Saved Google Client ID.');
+      setTimeout(() => setStatus(null), 2000);
+    } catch (e) {
+      void e;
+    }
   };
 
   const save = () => {
@@ -31,12 +37,7 @@ export default function Settings() {
     setTimeout(() => setStatus(null), 2500);
   };
 
-  const clear = () => {
-    byok.clear();
-    setApiKey('');
-    setStatus('Cleared.');
-    setTimeout(() => setStatus(null), 2500);
-  };
+  
 
   const testConnection = async () => {
     setTesting(true);

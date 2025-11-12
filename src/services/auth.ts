@@ -16,7 +16,9 @@ function getGoogleClientId(): string {
   try {
     const ls = window.localStorage?.getItem('gis.client_id') || '';
     if (ls) return ls;
-  } catch {}
+  } catch (err) {
+    void err;
+  }
   return '';
 }
 
