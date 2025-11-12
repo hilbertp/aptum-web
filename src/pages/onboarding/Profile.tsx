@@ -30,15 +30,26 @@ export default function Profile() {
   };
 
   const expDesc: Record<string, string> = {
-    beginner: 'Under ~2 years consistent lifting; learn technique, smaller load jumps.',
-    intermediate: '1–3 years; steady progress with moderate volume.',
-    advanced: '3–5+ years; slower progress, higher specificity.',
-    elite: 'Near ceiling; very small progressions and careful fatigue management.'
+    novice:
+      'You’re learning the basics. You focus on getting the movement right. You don’t really use concepts like RIR, RPE, myoreps, tempo work, or deloads yet. Progress mostly comes from just showing up and practicing the lifts.',
+    intermediate:
+      'You train consistently and understand the main ideas like RIR and RPE, progressive overload, and simple deloads. You follow a plan, track your lifts, and know how to push without overdoing it. You’re starting to use structured methods like tempo, supersets, or basic myoreps.',
+    advanced:
+      'You’ve been training seriously for years. You use RIR and RPE intentionally, plan overload across weeks, and schedule deloads based on fatigue. You understand myoreps, rest‑pause, tempo manipulation, periodization, and how to break through plateaus. Your technique is reliable across all compound lifts.',
+    expert:
+      'You have many years of lifting. You autoregulate volume and intensity, adjust periodization styles to your goals, and use advanced concepts intuitively. You know how to peak, rebuild, and stay strong year‑round. Your training is guided by experience, not guesswork.'
   };
   const fitDesc: Record<string, string> = {
-    beginner: 'Lower work capacity; shorter sessions, longer rests.',
-    intermediate: 'Tolerates moderate workloads.',
-    advanced: 'High capacity; can handle higher weekly volume and denser sessions.'
+    beginner:
+      'You get tired easily during longer workouts or daily activities. Cardio feels tough, and recovery takes a while.',
+    developing:
+      'You can jog, cycle, or train steadily for 30–45 minutes. You’re starting to feel more comfortable with conditioning but still gas out on intense days.',
+    trained:
+      'You do endurance or mixed training a few times a week. You can stay active for about an hour without fading and recover well between sessions.',
+    athletic:
+      'You can train hard and long. Back‑to‑back workouts or long games don’t drain you much, and you bounce back quickly.',
+    elite:
+      'You have exceptional stamina and recovery. You can push at high intensity for long stretches and stay sharp across demanding training weeks.'
   };
 
   return (
@@ -70,10 +81,10 @@ export default function Profile() {
           <span className="text-sm">Lifting experience</span>
           <select className="input" value={(profile as any).liftingExperience || ''} onChange={(e) => setProfile({ ...profile, liftingExperience: (e.target.value || undefined) as any })}>
             <option value="">—</option>
-            <option value="beginner">Beginner</option>
+            <option value="novice">Novice</option>
             <option value="intermediate">Intermediate</option>
             <option value="advanced">Advanced</option>
-            <option value="elite">Elite</option>
+            <option value="expert">Expert</option>
           </select>
           {(profile as any).liftingExperience && (
             <div className="text-xs text-muted">{expDesc[((profile as any).liftingExperience as string) || '']}</div>
@@ -84,8 +95,10 @@ export default function Profile() {
           <select className="input" value={(profile as any).fitnessLevel || ''} onChange={(e) => setProfile({ ...profile, fitnessLevel: (e.target.value || undefined) as any })}>
             <option value="">—</option>
             <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
+            <option value="developing">Developing</option>
+            <option value="trained">Trained</option>
+            <option value="athletic">Athletic</option>
+            <option value="elite">Elite</option>
           </select>
           {(profile as any).fitnessLevel && (
             <div className="text-xs text-muted">{fitDesc[((profile as any).fitnessLevel as string) || '']}</div>
