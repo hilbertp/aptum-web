@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { askGoals, loadGoalsInterview, resetGoalsInterview, slotsComplete } from '@/services/interview';
+import { loadPlan } from '@/services/coach';
 
 export default function Goals() {
   const nav = useNavigate();
@@ -9,11 +10,14 @@ export default function Goals() {
   const [state, setState] = useState<{ messages: { role: 'user'|'assistant'; content: string }[]; slots: any }>({ messages: [], slots: {} });
   const [input, setInput] = useState('');
   const listRef = useRef<HTMLDivElement>(null);
+  const [snapshot, setSnapshot] = useState<any | null>(null);
 
   useEffect(() => {
     (async () => {
       const s = await loadGoalsInterview();
       setState(s);
+      const p = await loadPlan();
+      setSnapshot(p || null);
       setLoading(false);
     })();
   }, []);
@@ -40,7 +44,7 @@ export default function Goals() {
   const canContinue = slotsComplete(state.slots);
 
   return (
-    <div className="grid gap-3">
+    <div className="grid gap-3 md:grid-cols-2">
       <div className="card p-4">
         <h2 className="font-semibold mb-2">Goals Interview (Chat)</h2>
         <div ref={listRef} className="max-h-72 overflow-auto space-y-2">
@@ -63,9 +67,33 @@ export default function Goals() {
           <button className="btn" onClick={async () => { await resetGoalsInterview(); const s = await loadGoalsInterview(); setState(s); }}>Reset</button>
         </div>
       </div>
-      <div className="flex gap-2">
-        <button className="btn btn-primary" disabled={!canContinue} onClick={() => nav('/onboarding/plan', { state: { ...state.slots } })}>Use answers</button>
-        <button className="btn" onClick={() => nav('/onboarding/profile')}>Back</button>
+      <div className="grid gap-3">
+        <div className="card p-4">
+          <h2 className="font-semibold mb-2">Plan Snapshot</h2>
+          {snapshot ? (
+            <div className="text-sm grid gap-2">
+              <div><span className="font-medium">Weeks:</span> {snapshot.cycle?.weeks}</div>
+              <div><span className="font-medium">Start:</span> {snapshot.cycle?.startISO}</div>
+              <div><span className="font-medium">Default Daily Cap:</span> {snapshot.constraints?.defaultDailyCapMin ?? 60} min</div>
+              {Array.isArray(snapshot.sources) && snapshot.sources.length > 0 && (
+                <div>
+                  <div className="font-medium">Sources:</div>
+                  <ul className="list-disc pl-5">
+                    {snapshot.sources.slice(0,5).map((s:any,i:number)=>(
+                      <li key={i} className="text-aptum-blue"><a href={s.url} target="_blank" rel="noreferrer">{s.title || s.id}</a></li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-sm text-muted">No plan yet. Use answers to generate a draft next.</div>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <button className="btn btn-primary" disabled={!canContinue} onClick={() => nav('/onboarding/plan', { state: { ...state.slots } })}>Use answers</button>
+          <button className="btn" onClick={() => nav('/onboarding/profile')}>Back</button>
+        </div>
       </div>
     </div>
   );

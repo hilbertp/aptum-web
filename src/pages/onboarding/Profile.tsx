@@ -32,6 +32,7 @@ export default function Profile() {
   return (
     <div className="card p-4 grid gap-3">
       <h2 className="font-semibold">Your Profile</h2>
+      <div className="text-sm text-muted">These details help the coach set appropriate volume, exercise selection, and how fast to progress week to week.</div>
       <div className="grid md:grid-cols-2 gap-3">
         <label className="grid gap-1">
           <span className="text-sm">Age</span>
@@ -62,6 +63,9 @@ export default function Profile() {
             <option value="advanced">Advanced</option>
             <option value="elite">Elite</option>
           </select>
+          <div className="text-xs text-muted">
+            Beginner: under ~2 years consistent lifting; learn technique, smaller load jumps. Intermediate: 1–3 years; steady progress with moderate volume. Advanced: 3–5+ years; slower progress, higher specificity. Elite: near ceiling; very small progressions and careful fatigue management.
+          </div>
         </label>
         <label className="grid gap-1">
           <span className="text-sm">Fitness level</span>
@@ -71,6 +75,9 @@ export default function Profile() {
             <option value="intermediate">Intermediate</option>
             <option value="advanced">Advanced</option>
           </select>
+          <div className="text-xs text-muted">
+            Beginner: lower work capacity; shorter sessions, longer rests. Intermediate: tolerates moderate workloads. Advanced: high capacity; can handle higher weekly volume and denser sessions.
+          </div>
         </label>
       </div>
       <label className="grid gap-1 max-w-xs">
@@ -80,6 +87,7 @@ export default function Profile() {
           <option value="imperial">imperial</option>
         </select>
       </label>
+      <div className="text-xs text-muted">What this affects: starting loads, weekly volume targets, exercise emphasis (main lifts vs. variations), and progression rate (load steps, deload frequency).</div>
       <div className="mt-2 flex gap-2">
         <button className="btn btn-primary" disabled={saving} onClick={async () => { setSaving(true); await saveProfile(profile); setSaving(false); nav('/onboarding/connect'); }}>{saving ? 'Saving…' : 'Continue'}</button>
         <button className="btn" onClick={() => nav('/onboarding/welcome')}>Back</button>
