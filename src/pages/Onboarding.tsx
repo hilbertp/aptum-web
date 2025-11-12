@@ -12,7 +12,9 @@ export default function Onboarding() {
   const nav = useNavigate();
   useEffect(() => {}, []);
 
-  const [apiKey, setApiKey] = useState(byok.get().apiKey || '');
+  const existingKey = byok.get().apiKey || '';
+  const [apiKey, setApiKey] = useState('');
+  const mask = (k: string) => (k ? `${k.slice(0, 6)}…${k.slice(-4)}` : '');
   const [savingKey, setSavingKey] = useState(false);
 
   const [profile, setProfile] = useState<Profile>({ units: 'metric' } as Profile);
@@ -127,8 +129,9 @@ export default function Onboarding() {
             <span className="text-sm">API Key</span>
             <input className="input" type="text" value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="sk-..." />
           </label>
+          {existingKey && !apiKey && (<div className="text-xs text-muted">Saved: {mask(existingKey)}</div>)}
           <div className="flex gap-2">
-            <button className="btn btn-primary" disabled={savingKey} onClick={() => { setSavingKey(true); byok.set({ apiKey }); setSavingKey(false); setStep(4); }}>Continue</button>
+            <button className="btn btn-primary" disabled={savingKey} onClick={() => { setSavingKey(true); const k = (apiKey && apiKey.trim().length > 0) ? apiKey.trim() : existingKey; if (k) byok.set({ apiKey: k }); setSavingKey(false); setStep(4); }}>Continue</button>
             <button className="btn" onClick={() => setStep(2)}>Back</button>
           </div>
         </div>

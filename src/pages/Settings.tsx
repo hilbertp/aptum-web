@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { byok } from '@/services/byok';
 import { useSettings } from '@/stores/settings';
 import { embed } from '@/services/llm';
@@ -9,10 +9,13 @@ export default function Settings() {
   const [testing, setTesting] = useState(false);
   // API key is always visible per product policy
 
+  const savedKey = useMemo(() => byok.get().apiKey || '', []);
   useEffect(() => {
-    const cfg = byok.get();
-    setApiKey(cfg.apiKey || '');
+    // Do not prefill the input; keep it empty by default.
+    setApiKey('');
   }, []);
+
+  const mask = (k: string) => (k ? `${k.slice(0, 6)}…${k.slice(-4)}` : '');
 
   const settings = useSettings();
 
@@ -33,6 +36,10 @@ export default function Settings() {
     setTesting(true);
     setStatus(null);
     try {
+      // Save the typed key first (if provided), otherwise use existing saved key
+      const effectiveKey = (apiKey && apiKey.trim().length > 0) ? apiKey.trim() : savedKey;
+      if (!effectiveKey) throw new Error('No API key');
+      if (effectiveKey !== savedKey) byok.set({ apiKey: effectiveKey });
       const vec = await embed(['hello aptum']);
       if (Array.isArray(vec) && vec[0]?.length) {
         setStatus('Connection OK');
@@ -65,6 +72,7 @@ export default function Settings() {
             <span className="text-sm">API Key</span>
             <input className="input" type="text" value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="sk-..." />
           </label>
+          {savedKey && <div className="text-xs text-muted">Saved: {mask(savedKey)}</div>}
           {/* Intentionally no embedding model UI. It is fixed and configured at build time. */}
           <div className="flex gap-2 mt-2">
             <button className="btn" onClick={save} type="button">Save</button>
