@@ -10,7 +10,7 @@ export default function Welcome() {
       <p className="mt-2 text-muted">{onboardingCopy.app.tagline}</p>
       <p className="mt-4 text-muted">Here your health no longer depletes. Aptum learns your biology to align training, recovery, and nutrition with longevity.</p>
       <div className="mt-6 flex gap-2">
-        <button className="btn btn-primary" onClick={() => nav('/onboarding/connect')}>Begin</button>
+        <button className="btn btn-primary" onClick={() => nav('/onboarding/profile')}>Begin</button>
       </div>
     </div>
   );

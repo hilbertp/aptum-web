@@ -5,8 +5,8 @@ export const onboardingCopy = {
   },
   steps: [
     { id: 'welcome', label: 'Welcome' },
-    { id: 'connect', label: 'Connect' },
     { id: 'profile', label: 'Profile' },
+    { id: 'connect', label: 'Connect' },
     { id: 'goals', label: 'Goals' },
     { id: 'plan', label: 'Plan' },
     { id: 'preview', label: 'Preview' }

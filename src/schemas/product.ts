@@ -7,7 +7,8 @@ export const ProfileSchema = z.object({
   weightKg: z.number().optional(),
   units: z.enum(['metric', 'imperial']).default('metric'),
   endurance: z.string().optional(),
-  liftingExperience: z.string().optional()
+  liftingExperience: z.string().optional(),
+  fitnessLevel: z.string().optional()
 });
 
 export const PlanSchema = z.object({

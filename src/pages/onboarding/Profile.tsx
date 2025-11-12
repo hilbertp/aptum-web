@@ -53,6 +53,25 @@ export default function Profile() {
           <span className="text-sm">Weight ({settings.units === 'metric' ? 'kg' : 'lb'})</span>
           <input className="input" type="number" value={toDisplayWeight(profile.weightKg)} onChange={(e) => setProfile({ ...profile, weightKg: parseWeightInput(e.target.value) })} />
         </label>
+        <label className="grid gap-1">
+          <span className="text-sm">Lifting experience</span>
+          <select className="input" value={(profile as any).liftingExperience || ''} onChange={(e) => setProfile({ ...profile, liftingExperience: (e.target.value || undefined) as any })}>
+            <option value="">—</option>
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+            <option value="elite">Elite</option>
+          </select>
+        </label>
+        <label className="grid gap-1">
+          <span className="text-sm">Fitness level</span>
+          <select className="input" value={(profile as any).fitnessLevel || ''} onChange={(e) => setProfile({ ...profile, fitnessLevel: (e.target.value || undefined) as any })}>
+            <option value="">—</option>
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+        </label>
       </div>
       <label className="grid gap-1 max-w-xs">
         <span className="text-sm">Units</span>
@@ -62,8 +81,8 @@ export default function Profile() {
         </select>
       </label>
       <div className="mt-2 flex gap-2">
-        <button className="btn btn-primary" disabled={saving} onClick={async () => { setSaving(true); await saveProfile(profile); setSaving(false); nav('/onboarding/goals'); }}>{saving ? 'Saving…' : 'Continue'}</button>
-        <button className="btn" onClick={() => nav('/onboarding/connect')}>Back</button>
+        <button className="btn btn-primary" disabled={saving} onClick={async () => { setSaving(true); await saveProfile(profile); setSaving(false); nav('/onboarding/connect'); }}>{saving ? 'Saving…' : 'Continue'}</button>
+        <button className="btn" onClick={() => nav('/onboarding/welcome')}>Back</button>
       </div>
     </div>
   );
