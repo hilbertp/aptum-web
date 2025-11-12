@@ -1,6 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Dumbbell, Calendar, Brain, Activity, Settings as Cog, Layout as WeekIcon } from 'lucide-react';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
+import { useAuth } from '@/stores/auth';
+import { hydrateSettings } from '@/stores/settings';
 
 const nav = [
   { to: '/strategy', label: 'Strategy', icon: Brain },
@@ -13,6 +15,11 @@ const nav = [
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
+  const auth = useAuth();
+  useEffect(() => {
+    // Load persisted settings at app start (units, caps, theme)
+    void hydrateSettings();
+  }, []);
 
   return (
     <div className="min-h-dvh flex flex-col">
@@ -22,7 +29,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
             <div className="h-8 w-8 rounded bg-aptum-blue/90"></div>
             <span className="font-extrabold tracking-tight text-aptum-blue">APTUM</span>
           </div>
-          <nav className="hidden md:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-4">
+            <div className="text-sm text-muted">Drive {auth.status === 'signed_in' ? 'Connected' : 'Disconnected'}</div>
+            <nav className="flex items-center gap-2">
             {nav.map((n) => {
               const active = pathname.startsWith(n.to);
               const Icon = n.icon;
@@ -39,7 +48,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
                 </Link>
               );
             })}
-          </nav>
+            </nav>
+          </div>
         </div>
       </header>
 

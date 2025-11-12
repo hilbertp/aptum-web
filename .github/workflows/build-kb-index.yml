@@ -1,0 +1,46 @@
+name: Build KB Index
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'build-kb-index.trigger'
+      - 'scripts/build_kb_index.py'
+      - 'docs/videos/**'
+      - 'docs/papers_notes/**'
+      - 'public/papers_md/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build KB index
+        if: ${{ secrets.OPENAI_API_KEY != '' }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python scripts/build_kb_index.py
+
+      - name: Skip build (no OPENAI_API_KEY)
+        if: ${{ secrets.OPENAI_API_KEY == '' }}
+        run: echo "No OPENAI_API_KEY secret found. Skipping KB index build."
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "chore(kb): build local retrieval index [skip ci]"
+          git push origin HEAD:main

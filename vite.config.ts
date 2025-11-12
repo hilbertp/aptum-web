@@ -3,6 +3,8 @@ import path from 'node:path';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
+const port = Number.parseInt(process.env.PORT || '') || 5173;
+
 export default defineConfig({
   plugins: [
     react(),
@@ -35,6 +37,8 @@ export default defineConfig({
     }
   },
   server: {
-    port: 5173
+    port,
+    host: true,
+    allowedHosts: true
   }
 });

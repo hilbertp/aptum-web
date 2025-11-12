@@ -16,7 +16,7 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <AppShell>
         <Routes>
-          <Route path="/" element={<Navigate to="/strategy" replace />} />
+          <Route path="/" element={<Navigate to="/onboarding" replace />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/strategy" element={<Strategy />} />
           <Route path="/schedule" element={<Schedule />} />

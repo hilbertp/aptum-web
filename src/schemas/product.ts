@@ -22,6 +22,19 @@ export const PlanSchema = z.object({
   }).optional(),
   constraints: z.object({ defaultDailyCapMin: z.number().int().optional() }).optional(),
   profileSnapshot: ProfileSchema.partial().optional(),
+  // Optional knowledge sources attached by retrieval engine for transparency
+  sources: z
+    .array(
+      z.object({
+        id: z.string(),
+        kind: z.enum(['paper', 'note', 'video_note', 'video_claim']).optional(),
+        title: z.string().optional(),
+        pmid: z.string().optional(),
+        videoId: z.string().optional(),
+        url: z.string().optional()
+      })
+    )
+    .optional(),
   acceptedAt: z.string().optional()
 });
 

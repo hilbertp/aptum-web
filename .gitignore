@@ -3,3 +3,7 @@ dist
 .DS_Store
 .env
 .vite
+
+# II Agent deploy key
+.ii_agent_deploy
+.ii_agent_deploy.pub
