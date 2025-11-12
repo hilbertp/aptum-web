@@ -39,6 +39,8 @@ export function signInWithGoogle() {
     scope: DRIVE_SCOPES,
     prompt: 'consent',
     callback: (resp: any) => {
+      // Clear pending timeout on callback
+      if (timeoutId) window.clearTimeout(timeoutId);
       if (resp && resp.access_token) {
         driveSync.setAccessToken(resp.access_token);
         useAuth.getState().setSignedIn(resp.access_token);
@@ -52,5 +54,12 @@ export function signInWithGoogle() {
     auth.setError('Google Identity Services (GIS) not loaded. Check the GIS script and allowed origins.');
     return;
   }
+  // If the popup is blocked or cookies disabled, GIS may never call our callback.
+  // Set a timeout to surface a helpful error and allow retry.
+  const timeoutId = window.setTimeout(() => {
+    if (useAuth.getState().status === 'signing_in') {
+      useAuth.getState().setError('Google sign-in timed out. Allow popups and third-party cookies, then try again.');
+    }
+  }, 10000);
   tokenClient.requestAccessToken();
 }

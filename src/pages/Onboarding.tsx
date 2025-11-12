@@ -80,7 +80,7 @@ export default function Onboarding() {
               )}
             </div>
             {auth.status === 'error' && (
-              <div className="mt-2 text-sm text-red-600">Google sign-in failed. Ensure VITE_GOOGLE_CLIENT_ID is set and this domain is allowed in your OAuth client.</div>
+              <div className="mt-2 text-sm text-red-600">{auth.error || 'Google sign-in failed. Ensure VITE_GOOGLE_CLIENT_ID is set and this domain is allowed in your OAuth client.'}</div>
             )}
           </div>
           <div className="card p-4 grid gap-3">
