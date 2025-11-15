@@ -7,3 +7,8 @@ dist
 # II Agent deploy key
 .ii_agent_deploy
 .ii_agent_deploy.pub
+
+# Test results and artifacts
+test-results/
+playwright-report/
+test-results.txt
