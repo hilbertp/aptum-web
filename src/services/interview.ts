@@ -47,6 +47,17 @@ export type PlanField = {
 
 export type ProgressionType = 'linear' | 'periodized';
 
+export type PeriodizationModel = 
+  | 'simple_progression'
+  | 'classical_linear'
+  | 'block'
+  | 'atr'
+  | 'undulating'
+  | 'conjugate'
+  | 'reverse'
+  | 'polarized'
+  | 'pyramidal';
+
 export type PlanRecommendation = {
   weeksPlanned: PlanField;
   sessionsPerWeek: PlanField;
@@ -54,6 +65,7 @@ export type PlanRecommendation = {
   sessionDistribution: PlanField; // Record<FocusArea, number>
   buildToDeloadRatio: PlanField; // e.g., "3:1"
   progressionType: PlanField; // 'linear' or 'periodized'
+  periodizationModel?: PlanField; // Only when progressionType is 'periodized'
   startingWeek?: PlanField; // Optional ISO date
 };
 

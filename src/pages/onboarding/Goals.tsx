@@ -12,9 +12,36 @@ import {
   type FieldOwnership,
   SUGGESTED_FOCUS_AREAS
 } from '@/services/interview';
+import { NumberField, TextField } from '@/components/mesocycle/PlanField';
+import { PeriodizationModelSelector } from '@/components/mesocycle/PeriodizationModelSelector';
 import { Lock, Unlock, RefreshCw, Plus, X } from 'lucide-react';
 import { byok } from '@/services/byok';
 import { useState as useLocalState } from 'react';
+import type { PeriodizationModel } from '@/schemas/product';
+
+// Adapter to convert interview PlanField to EnhancedPlan PlanField format for components
+function adaptPlanField<T>(interviewField: PlanField): {
+  value: T;
+  ownership: 'system' | 'athlete' | 'locked';
+  lastModified: number;
+  modifiedBy: 'ai' | 'athlete';
+  highlight: boolean;
+  highlightUntil?: number;
+} {
+  const ownership = 
+    interviewField.ownership === 'system-owned' ? 'system' :
+    interviewField.ownership === 'athlete-owned' ? 'athlete' :
+    'locked';
+  
+  return {
+    value: interviewField.value as T,
+    ownership,
+    lastModified: interviewField.lastUpdated || Date.now(),
+    modifiedBy: ownership === 'athlete' ? 'athlete' : 'ai',
+    highlight: interviewField.highlight || false,
+    highlightUntil: interviewField.highlight ? Date.now() + 15000 : undefined
+  };
+}
 
 export default function Goals() {
   const nav = useNavigate();
@@ -48,14 +75,17 @@ export default function Goals() {
 
     if (hasHighlights) {
       const timer = setTimeout(() => {
-        const updated = { ...state.planRecommendation };
-        Object.keys(updated).forEach((key) => {
-          const field = updated[key as keyof typeof updated];
-          if (field && typeof field === 'object' && 'highlight' in field) {
-            updated[key as keyof typeof updated] = { ...field, highlight: false } as any;
-          }
+        setState((prevState) => {
+          if (!prevState.planRecommendation) return prevState;
+          const updated = { ...prevState.planRecommendation };
+          Object.keys(updated).forEach((key) => {
+            const field = updated[key as keyof typeof updated];
+            if (field && typeof field === 'object' && 'highlight' in field) {
+              updated[key as keyof typeof updated] = { ...field, highlight: false } as any;
+            }
+          });
+          return { ...prevState, planRecommendation: updated as any };
         });
-        setState({ ...state, planRecommendation: updated as any });
       }, 15000);
       return () => clearTimeout(timer);
     }
@@ -123,6 +153,17 @@ export default function Goals() {
         highlight: false,
       }
     };
+    
+    // If progressionType changes to 'periodized', initialize periodizationModel if not present
+    if (fieldName === 'progressionType' && value === 'periodized' && !updated.periodizationModel) {
+      updated.periodizationModel = {
+        value: 'classical_linear',
+        ownership: 'system-owned' as FieldOwnership,
+        lastUpdated: Date.now(),
+        highlight: false,
+      };
+    }
+    
     setState({ ...state, planRecommendation: updated });
   }
 
@@ -212,24 +253,24 @@ export default function Goals() {
 
         {plan && (
           <div className="grid gap-4 mt-4">
-            <PlanFieldComponent
+            <NumberField
               label="Weeks Planned"
-              field={plan.weeksPlanned}
-              onUpdate={(v) => updateField('weeksPlanned', v)}
-              onToggleLock={() => toggleLock('weeksPlanned')}
-              type="number"
+              field={adaptPlanField<number>(plan.weeksPlanned)}
+              onValueChange={(v) => updateField('weeksPlanned', v)}
+              onLockToggle={() => toggleLock('weeksPlanned')}
               min={4}
               max={16}
+              helpText="Total duration of your mesocycle (4-16 weeks)"
             />
 
-            <PlanFieldComponent
+            <NumberField
               label="Sessions Per Week"
-              field={plan.sessionsPerWeek}
-              onUpdate={(v) => updateField('sessionsPerWeek', v)}
-              onToggleLock={() => toggleLock('sessionsPerWeek')}
-              type="number"
+              field={adaptPlanField<number>(plan.sessionsPerWeek)}
+              onValueChange={(v) => updateField('sessionsPerWeek', v)}
+              onLockToggle={() => toggleLock('sessionsPerWeek')}
               min={2}
               max={21}
+              helpText="How many training sessions you can commit to weekly"
             />
 
             <FocusAreasField
@@ -245,13 +286,13 @@ export default function Goals() {
               onToggleLock={() => toggleLock('sessionDistribution')}
             />
 
-            <PlanFieldComponent
+            <TextField
               label="Build-to-Deload Ratio"
-              field={plan.buildToDeloadRatio}
-              onUpdate={(v) => updateField('buildToDeloadRatio', v)}
-              onToggleLock={() => toggleLock('buildToDeloadRatio')}
-              type="text"
-              placeholder="e.g., 3:1"
+              field={adaptPlanField<string>(plan.buildToDeloadRatio)}
+              onValueChange={(v) => updateField('buildToDeloadRatio', v)}
+              onLockToggle={() => toggleLock('buildToDeloadRatio')}
+              placeholder="e.g., 3:1, 4:1"
+              helpText="Ratio of building weeks to deload weeks (e.g., 3:1 = 3 weeks build, 1 week deload)"
             />
 
             <ProgressionTypeField
@@ -260,13 +301,22 @@ export default function Goals() {
               onToggleLock={() => toggleLock('progressionType')}
             />
 
+            {plan.progressionType.value === 'periodized' && plan.periodizationModel && (
+              <PeriodizationModelSelector
+                field={adaptPlanField<PeriodizationModel>(plan.periodizationModel)}
+                onModelChange={(model) => updateField('periodizationModel', model)}
+                showRecommendedBadge={plan.periodizationModel.ownership === 'system-owned'}
+              />
+            )}
+
             {plan.startingWeek && (
-              <PlanFieldComponent
+              <TextField
                 label="Starting Week (Optional)"
-                field={plan.startingWeek}
-                onUpdate={(v) => updateField('startingWeek', v)}
-                onToggleLock={() => toggleLock('startingWeek')}
-                type="date"
+                field={adaptPlanField<string>(plan.startingWeek)}
+                onValueChange={(v) => updateField('startingWeek', v)}
+                onLockToggle={() => toggleLock('startingWeek')}
+                placeholder="YYYY-MM-DD"
+                helpText="When you want to start your mesocycle"
               />
             )}
           </div>
@@ -287,62 +337,7 @@ export default function Goals() {
   );
 }
 
-// Helper component for standard plan fields
-function PlanFieldComponent({ 
-  label, 
-  field, 
-  onUpdate, 
-  onToggleLock,
-  type = 'text',
-  min,
-  max,
-  placeholder
-}: { 
-  label: string;
-  field: PlanField;
-  onUpdate: (value: any) => void;
-  onToggleLock: () => void;
-  type?: 'text' | 'number' | 'date';
-  min?: number;
-  max?: number;
-  placeholder?: string;
-}) {
-  const isLocked = field.ownership === 'locked';
-  const isSystemOwned = field.ownership === 'system-owned';
 
-  return (
-    <div className={`grid gap-1.5 transition-all duration-300 ${field.highlight ? 'animate-pulse-once' : ''}`}>
-      <div className="flex items-center justify-between">
-        <label className="text-sm font-medium flex items-center gap-2">
-          {label}
-          <span className={`text-xs px-1.5 py-0.5 rounded ${
-            isLocked ? 'bg-gray-200 text-gray-700' :
-            isSystemOwned ? 'bg-blue-100 text-blue-700' :
-            'bg-green-100 text-green-700'
-          }`}>
-            {isLocked ? 'Locked' : isSystemOwned ? 'AI' : 'You'}
-          </span>
-        </label>
-        <button
-          onClick={onToggleLock}
-          className="p-1 hover:bg-panel rounded transition-colors"
-          title={isLocked ? 'Unlock field' : 'Lock field'}
-        >
-          {isLocked ? <Lock className="w-4 h-4 text-gray-500" /> : <Unlock className="w-4 h-4 text-gray-400" />}
-        </button>
-      </div>
-      <input
-        type={type}
-        className={`input ${field.highlight ? 'ring-2 ring-aptum-blue ring-opacity-50' : ''}`}
-        value={field.value ?? ''}
-        onChange={(e) => onUpdate(type === 'number' ? Number(e.target.value) : e.target.value)}
-        min={min}
-        max={max}
-        placeholder={placeholder}
-      />
-    </div>
-  );
-}
 
 // Component for focus areas (multi-select with custom option)
 function FocusAreasField({ field, onUpdate, onToggleLock }: {
