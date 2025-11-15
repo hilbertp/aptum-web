@@ -1,11 +1,12 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Dumbbell, Calendar, Brain, Activity, Settings as Cog, Layout as WeekIcon } from 'lucide-react';
+import { Dumbbell, Calendar, Brain, Activity, Settings as Cog, Layout as WeekIcon, TrendingUp } from 'lucide-react';
 import { ReactNode, useEffect } from 'react';
 import { useAuth } from '@/stores/auth';
 import { hydrateSettings } from '@/stores/settings';
 
 const nav = [
   { to: '/strategy', label: 'Strategy', icon: Brain },
+  { to: '/mesocycle', label: 'Mesocycle', icon: TrendingUp },
   { to: '/schedule', label: 'Schedule', icon: Calendar },
   { to: '/week', label: 'Week', icon: WeekIcon },
   { to: '/session', label: "Today's Session", icon: Dumbbell },
@@ -58,7 +59,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
       </main>
 
       <footer className="md:hidden fixed bottom-0 inset-x-0 border-t border-line bg-white/95 backdrop-blur">
-        <div className="grid grid-cols-5 text-xs">
+        <div className="flex overflow-x-auto text-xs">
           {nav.map((n) => {
             const active = pathname.startsWith(n.to);
             const Icon = n.icon;
@@ -67,12 +68,12 @@ export default function AppShell({ children }: { children: ReactNode }) {
                 key={n.to}
                 to={n.to}
                 className={
-                  'flex flex-col items-center justify-center py-2 ' +
+                  'flex flex-col items-center justify-center py-2 px-3 min-w-[80px] ' +
                   (active ? 'text-aptum-blue' : 'text-muted')
                 }
               >
                 <Icon className="h-5 w-5" />
-                <span>{n.label}</span>
+                <span className="text-[10px] mt-1">{n.label}</span>
               </Link>
             );
           })}

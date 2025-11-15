@@ -27,6 +27,7 @@ import Session from './pages/Session';
 import Recovery from './pages/Recovery';
 import Settings from './pages/Settings';
 import Weekly from './pages/Weekly';
+import Mesocycle from './pages/Mesocycle';
 import OnboardingShell from './pages/OnboardingShell';
 import RequireOnboarding from './ui/RequireOnboarding';
 import Welcome from './pages/onboarding/Welcome';
@@ -54,6 +55,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="preview" element={<Preview />} />
           </Route>
           <Route path="/strategy" element={<RequireOnboarding><Strategy /></RequireOnboarding>} />
+          <Route path="/mesocycle" element={<Mesocycle />} />
           <Route path="/schedule" element={<RequireOnboarding><Schedule /></RequireOnboarding>} />
           <Route path="/session" element={<RequireOnboarding><Session /></RequireOnboarding>} />
           <Route path="/week" element={<RequireOnboarding><Weekly /></RequireOnboarding>} />
