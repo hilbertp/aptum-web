@@ -239,7 +239,7 @@ export default function Goals() {
               onToggleLock={() => toggleLock('sessionsPerWeek')}
               type="number"
               min={2}
-              max={7}
+              max={21}
             />
 
             <FocusAreasField
@@ -455,7 +455,7 @@ function SessionDistributionField({ field, focusAreas, onUpdate, onToggleLock }:
               value={distribution[area] || 0}
               onChange={(e) => updateDistribution(area, Number(e.target.value))}
               min={0}
-              max={7}
+              max={21}
             />
             <span className="text-xs text-muted">sessions/week</span>
           </div>

@@ -91,7 +91,7 @@ function systemPrompt(kbSnippets: string[], planRecommendation: PlanRecommendati
 PLAN RECOMMENDATIONS:
 You may recommend values for these fields ONLY if they are system-owned (ownership: "system-owned"):
 - weeksPlanned: number (4-16 weeks based on experience)
-- sessionsPerWeek: number (2-7 based on availability and goals)
+- sessionsPerWeek: number (2-21, can include multiple sessions per day like lifting + cardio)
 - focusAreas: array of 1-3 areas from: ${focusAreas.join(', ')}
 - sessionDistribution: object mapping each focus area to number of sessions
 - buildToDeloadRatio: string (e.g., "3:1", "4:1")
@@ -112,11 +112,12 @@ ${JSON.stringify(planRecommendation, null, 2)}
     'You are Aptum Coach, interviewing an athlete to design a mesocycle.',
     'Interview via chat. Ask ONE concise question at a time to fill these slots:',
     '- primaryGoal: hypertrophy | strength | fat loss | endurance | mixed',
-    '- daysPerWeek: integer (2..7)',
+    '- daysPerWeek: integer (2..7, training days available per week)',
     '- equipment: free text (e.g., full gym, limited, home setup)',
     '- constraints: injuries, time constraints, preferences',
     planInstructions,
     'Be supportive, brief, and specific. Use context to tailor advice.',
+    'Note: sessionsPerWeek (2-21) can exceed daysPerWeek since athletes may do multiple sessions per day.',
     'Return STRICT JSON only with this structure:',
     '{"reply": string, "ask_next": boolean, "slots": {...partial slot updates...}, "planUpdates": {...only changed fields with explanations...}, "changedFields": string[]}',
     kb
