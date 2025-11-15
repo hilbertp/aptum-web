@@ -34,6 +34,10 @@ body {
   @apply inline-flex items-center justify-center rounded-lg px-4 py-2 font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-aptum-blue/40;
 }
 
+.btn-sm {
+  @apply inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-aptum-blue/40;
+}
+
 .btn-primary {
   @apply bg-aptum-blue text-white hover:bg-aptum-blue/90;
 }
