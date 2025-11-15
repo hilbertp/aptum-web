@@ -9,22 +9,12 @@ import {
   type GoalsInterviewState,
   type PlanField,
   type FocusArea,
-  type FieldOwnership
+  type FieldOwnership,
+  SUGGESTED_FOCUS_AREAS
 } from '@/services/interview';
-import { Lock, Unlock, RefreshCw } from 'lucide-react';
+import { Lock, Unlock, RefreshCw, Plus, X } from 'lucide-react';
 import { byok } from '@/services/byok';
-
-const FOCUS_AREAS: FocusArea[] = [
-  'Strength',
-  'Hypertrophy',
-  'Power / Explosiveness',
-  'Endurance (steady)',
-  'HIIT / Conditioning',
-  'Mobility',
-  'Sport Performance',
-  'Fat Loss',
-  'Longevity / Health'
-];
+import { useState as useLocalState } from 'react';
 
 export default function Goals() {
   const nav = useNavigate();
@@ -264,6 +254,12 @@ export default function Goals() {
               placeholder="e.g., 3:1"
             />
 
+            <ProgressionTypeField
+              field={plan.progressionType}
+              onUpdate={(v) => updateField('progressionType', v)}
+              onToggleLock={() => toggleLock('progressionType')}
+            />
+
             {plan.startingWeek && (
               <PlanFieldComponent
                 label="Starting Week (Optional)"
@@ -348,13 +344,15 @@ function PlanFieldComponent({
   );
 }
 
-// Component for focus areas (multi-select)
+// Component for focus areas (multi-select with custom option)
 function FocusAreasField({ field, onUpdate, onToggleLock }: {
   field: PlanField;
   onUpdate: (value: FocusArea[]) => void;
   onToggleLock: () => void;
 }) {
   const selected: FocusArea[] = field.value || [];
+  const [showCustomInput, setShowCustomInput] = useLocalState(false);
+  const [customValue, setCustomValue] = useLocalState('');
   const isLocked = field.ownership === 'locked';
   const isSystemOwned = field.ownership === 'system-owned';
 
@@ -366,8 +364,21 @@ function FocusAreasField({ field, onUpdate, onToggleLock }: {
     }
   }
 
+  function removeArea(area: FocusArea) {
+    onUpdate(selected.filter(a => a !== area));
+  }
+
+  function addCustomArea() {
+    const trimmed = customValue.trim();
+    if (trimmed && !selected.includes(trimmed) && selected.length < 3) {
+      onUpdate([...selected, trimmed]);
+      setCustomValue('');
+      setShowCustomInput(false);
+    }
+  }
+
   return (
-    <div className={`grid gap-1.5 transition-all duration-300 ${field.highlight ? 'animate-pulse-once' : ''}`}>
+    <div className={`grid gap-2 transition-all duration-300 ${field.highlight ? 'animate-pulse-once' : ''}`}>
       <div className="flex items-center justify-between">
         <label className="text-sm font-medium flex items-center gap-2">
           Focus Areas (1-3)
@@ -386,22 +397,100 @@ function FocusAreasField({ field, onUpdate, onToggleLock }: {
           {isLocked ? <Lock className="w-4 h-4 text-gray-500" /> : <Unlock className="w-4 h-4 text-gray-400" />}
         </button>
       </div>
-      <div className={`grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 rounded-lg border ${field.highlight ? 'ring-2 ring-aptum-blue ring-opacity-50 border-aptum-blue' : 'border-line'}`}>
-        {FOCUS_AREAS.map((area) => (
-          <button
-            key={area}
-            onClick={() => toggleArea(area)}
-            className={`text-xs px-2 py-1.5 rounded transition-colors ${
-              selected.includes(area)
-                ? 'bg-aptum-blue text-white'
-                : 'bg-panel hover:bg-gray-100 border border-line'
-            }`}
-          >
-            {area}
-          </button>
-        ))}
+
+      {/* Selected Focus Areas */}
+      {selected.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {selected.map((area) => (
+            <div
+              key={area}
+              className="flex items-center gap-1.5 bg-aptum-blue text-white text-sm px-3 py-1.5 rounded-full"
+            >
+              <span>{area}</span>
+              <button
+                onClick={() => removeArea(area)}
+                className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Suggested Focus Areas */}
+      <div className={`p-3 rounded-lg border ${field.highlight ? 'ring-2 ring-aptum-blue ring-opacity-50 border-aptum-blue' : 'border-line'}`}>
+        <div className="text-xs text-muted mb-2">Suggested:</div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {SUGGESTED_FOCUS_AREAS.map((area) => (
+            <button
+              key={area}
+              onClick={() => toggleArea(area)}
+              disabled={selected.includes(area) || selected.length >= 3}
+              className={`text-xs px-2 py-1.5 rounded transition-colors ${
+                selected.includes(area)
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  : selected.length >= 3
+                  ? 'bg-panel text-gray-400 cursor-not-allowed'
+                  : 'bg-panel hover:bg-aptum-blue hover:text-white border border-line'
+              }`}
+            >
+              {area}
+            </button>
+          ))}
+        </div>
+
+        {/* Custom Focus Area Input */}
+        {selected.length < 3 && (
+          <div className="mt-3 pt-3 border-t border-line">
+            {!showCustomInput ? (
+              <button
+                onClick={() => setShowCustomInput(true)}
+                className="flex items-center gap-1.5 text-xs text-aptum-blue hover:underline"
+              >
+                <Plus className="w-3 h-3" />
+                Add custom focus area
+              </button>
+            ) : (
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  className="input flex-1 text-sm"
+                  placeholder="e.g., Olympic Lifting, Swimming..."
+                  value={customValue}
+                  onChange={(e) => setCustomValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') addCustomArea();
+                    if (e.key === 'Escape') {
+                      setShowCustomInput(false);
+                      setCustomValue('');
+                    }
+                  }}
+                  autoFocus
+                />
+                <button
+                  onClick={addCustomArea}
+                  className="btn btn-sm btn-primary"
+                  disabled={!customValue.trim()}
+                >
+                  Add
+                </button>
+                <button
+                  onClick={() => {
+                    setShowCustomInput(false);
+                    setCustomValue('');
+                  }}
+                  className="btn btn-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
-      <div className="text-xs text-muted">Selected: {selected.length}/3</div>
+
+      <div className="text-xs text-muted">Selected: {selected.length}/3 • You can use suggested areas or create custom ones</div>
     </div>
   );
 }
@@ -460,6 +549,68 @@ function SessionDistributionField({ field, focusAreas, onUpdate, onToggleLock }:
             <span className="text-xs text-muted">sessions/week</span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+// Component for progression type
+function ProgressionTypeField({ field, onUpdate, onToggleLock }: {
+  field: PlanField;
+  onUpdate: (value: 'linear' | 'periodized') => void;
+  onToggleLock: () => void;
+}) {
+  const value: 'linear' | 'periodized' = field.value || 'linear';
+  const isLocked = field.ownership === 'locked';
+  const isSystemOwned = field.ownership === 'system-owned';
+
+  return (
+    <div className={`grid gap-1.5 transition-all duration-300 ${field.highlight ? 'animate-pulse-once' : ''}`}>
+      <div className="flex items-center justify-between">
+        <label className="text-sm font-medium flex items-center gap-2">
+          Progression Type
+          <span className={`text-xs px-1.5 py-0.5 rounded ${
+            isLocked ? 'bg-gray-200 text-gray-700' :
+            isSystemOwned ? 'bg-blue-100 text-blue-700' :
+            'bg-green-100 text-green-700'
+          }`}>
+            {isLocked ? 'Locked' : isSystemOwned ? 'AI' : 'You'}
+          </span>
+        </label>
+        <button
+          onClick={onToggleLock}
+          className="p-1 hover:bg-panel rounded transition-colors"
+        >
+          {isLocked ? <Lock className="w-4 h-4 text-gray-500" /> : <Unlock className="w-4 h-4 text-gray-400" />}
+        </button>
+      </div>
+      <div className={`grid grid-cols-2 gap-3 p-3 rounded-lg border ${field.highlight ? 'ring-2 ring-aptum-blue ring-opacity-50 border-aptum-blue' : 'border-line'}`}>
+        <button
+          onClick={() => onUpdate('linear')}
+          className={`p-3 rounded-lg border-2 transition-all text-left ${
+            value === 'linear'
+              ? 'border-aptum-blue bg-aptum-blue/5'
+              : 'border-line hover:border-gray-300'
+          }`}
+        >
+          <div className="font-semibold text-sm mb-1">Linear</div>
+          <div className="text-xs text-muted">
+            Beginner-friendly, 4-8 weeks, steady progression
+          </div>
+        </button>
+        <button
+          onClick={() => onUpdate('periodized')}
+          className={`p-3 rounded-lg border-2 transition-all text-left ${
+            value === 'periodized'
+              ? 'border-aptum-blue bg-aptum-blue/5'
+              : 'border-line hover:border-gray-300'
+          }`}
+        >
+          <div className="font-semibold text-sm mb-1">Periodized</div>
+          <div className="text-xs text-muted">
+            Advanced models with varied intensities and volumes
+          </div>
+        </button>
       </div>
     </div>
   );

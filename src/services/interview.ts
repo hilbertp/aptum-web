@@ -10,16 +10,31 @@ export type GoalsSlots = {
   constraints?: string;
 };
 
-export type FocusArea = 
-  | 'Strength'
-  | 'Hypertrophy'
-  | 'Power / Explosiveness'
-  | 'Endurance (steady)'
-  | 'HIIT / Conditioning'
-  | 'Mobility'
-  | 'Sport Performance'
-  | 'Fat Loss'
-  | 'Longevity / Health';
+// Focus areas can be predefined or custom strings
+export type FocusArea = string;
+
+export const SUGGESTED_FOCUS_AREAS = [
+  'Strength',
+  'Hypertrophy',
+  'Power / Explosiveness',
+  'Endurance (steady)',
+  'HIIT / Conditioning',
+  'Mobility',
+  'Sport Performance',
+  'Fat Loss',
+  'Longevity / Health'
+] as const;
+
+export type BlockerType = 'team-practice' | 'game-day' | 'off-day' | 'recovery';
+export type StrainLevel = 0 | 1 | 2 | 3; // 0 = none, 1 = low, 2 = medium, 3 = high
+
+export type Blocker = {
+  id: string;
+  date: string; // ISO date string
+  type: BlockerType;
+  strain: StrainLevel;
+  notes?: string;
+};
 
 export type FieldOwnership = 'locked' | 'athlete-owned' | 'system-owned';
 
@@ -30,12 +45,15 @@ export type PlanField = {
   highlight?: boolean;
 };
 
+export type ProgressionType = 'linear' | 'periodized';
+
 export type PlanRecommendation = {
   weeksPlanned: PlanField;
   sessionsPerWeek: PlanField;
   focusAreas: PlanField; // Array of 1-3 FocusArea
   sessionDistribution: PlanField; // Record<FocusArea, number>
   buildToDeloadRatio: PlanField; // e.g., "3:1"
+  progressionType: PlanField; // 'linear' or 'periodized'
   startingWeek?: PlanField; // Optional ISO date
 };
 
@@ -58,6 +76,7 @@ export function createDefaultPlanRecommendation(): PlanRecommendation {
     focusAreas: createDefaultPlanField([]),
     sessionDistribution: createDefaultPlanField({}),
     buildToDeloadRatio: createDefaultPlanField('3:1'),
+    progressionType: createDefaultPlanField('linear'),
   };
 }
 
@@ -92,9 +111,10 @@ PLAN RECOMMENDATIONS:
 You may recommend values for these fields ONLY if they are system-owned (ownership: "system-owned"):
 - weeksPlanned: number (4-16 weeks based on experience)
 - sessionsPerWeek: number (2-21, can include multiple sessions per day like lifting + cardio)
-- focusAreas: array of 1-3 areas from: ${focusAreas.join(', ')}
+- focusAreas: array of 1-3 areas from: ${focusAreas.join(', ')} (or custom athlete-defined areas)
 - sessionDistribution: object mapping each focus area to number of sessions
 - buildToDeloadRatio: string (e.g., "3:1", "4:1")
+- progressionType: "linear" (beginner-friendly, 4-8 weeks, steady progression) or "periodized" (advanced, varied intensities and volumes)
 - startingWeek: optional ISO date string
 
 CRITICAL RULES:
