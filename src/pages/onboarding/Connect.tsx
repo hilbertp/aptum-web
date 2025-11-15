@@ -12,19 +12,19 @@ export default function Connect() {
   const [apiKey, setApiKey] = useState('');
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
   const [testError, setTestError] = useState('');
-  const [showFullKey, setShowFullKey] = useState(false);
 
   const notSignedIn = auth.status !== 'signed_in';
   const currentKey = apiKey.trim() || savedKey;
   const noKey = !currentKey;
+  
+  // Show abbreviated only after successful test
+  const showAbbreviated = testStatus === 'success' && apiKey.trim();
 
   // Abbreviate key for display
   const abbreviateKey = (key: string) => {
     if (!key || key.length < 12) return key;
     return `${key.slice(0, 8)}...${key.slice(-4)}`;
   };
-
-  const displayValue = showFullKey ? apiKey : (apiKey ? abbreviateKey(apiKey) : '');
 
   const testApiKey = async () => {
     const keyToTest = currentKey;
@@ -54,13 +54,6 @@ export default function Connect() {
       setTestStatus('error');
       setTestError(error instanceof Error ? error.message : 'Failed to verify API key');
     }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    const pasted = e.clipboardData.getData('text');
-    setApiKey(pasted);
-    setShowFullKey(false);
-    setTestStatus('idle');
   };
 
   return (
@@ -93,23 +86,31 @@ export default function Connect() {
           <label className="grid gap-1">
             <span className="text-sm">API Key</span>
             <div className="flex gap-2 items-center">
-              <input 
-                className="input flex-1" 
-                value={displayValue}
-                onChange={(e) => setApiKey(e.target.value)}
-                onPaste={handlePaste}
-                onFocus={() => setShowFullKey(true)}
-                onBlur={() => setShowFullKey(false)}
-                placeholder="sk-..." 
-              />
-              {currentKey && (
+              {showAbbreviated ? (
+                <div className="input flex-1 bg-gray-50 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <span className="text-sm">{abbreviateKey(apiKey)}</span>
+                </div>
+              ) : (
+                <input 
+                  type="password"
+                  className="input flex-1" 
+                  value={apiKey}
+                  onChange={(e) => {
+                    setApiKey(e.target.value);
+                    setTestStatus('idle');
+                    setTestError('');
+                  }}
+                  placeholder="sk-..." 
+                />
+              )}
+              {currentKey && !showAbbreviated && (
                 <button 
-                  className="btn btn-sm flex items-center gap-1.5"
+                  className="btn btn-sm flex items-center gap-1.5 whitespace-nowrap"
                   onClick={testApiKey}
                   disabled={testStatus === 'testing'}
                 >
                   {testStatus === 'testing' && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {testStatus === 'success' && <CheckCircle2 className="w-4 h-4 text-green-600" />}
                   {testStatus === 'error' && <XCircle className="w-4 h-4 text-red-600" />}
                   {testStatus === 'testing' ? 'Testing...' : 'Test Key'}
                 </button>
@@ -118,11 +119,11 @@ export default function Connect() {
           </label>
           {savedKey && !apiKey && (
             <div className="text-xs text-muted flex items-center gap-1">
-              {testStatus === 'success' && <CheckCircle2 className="w-3 h-3 text-green-600" />}
+              <CheckCircle2 className="w-3 h-3 text-green-600" />
               Saved: {abbreviateKey(savedKey)}
             </div>
           )}
-          {testStatus === 'success' && (
+          {showAbbreviated && (
             <div className="text-xs text-green-600 flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3" />
               API key verified successfully!
