@@ -11,32 +11,8 @@ export default function Mesocycle() {
 
   useEffect(() => {
     (async () => {
-      let state = await loadGoalsInterview();
-      
-      // If no plan recommendation exists, create a default one for demo
-      if (!state.planRecommendation || !state.planRecommendation.focusAreas?.value?.length) {
-        const { createDefaultPlanRecommendation, createDefaultPlanField, saveGoalsInterview } = await import('@/services/interview');
-        const defaultPlan = createDefaultPlanRecommendation();
-        defaultPlan.focusAreas = createDefaultPlanField(['Strength', 'Hypertrophy'], 'athlete-owned');
-        defaultPlan.sessionDistribution = createDefaultPlanField({ 'Strength': 2, 'Hypertrophy': 2 }, 'system-owned');
-        state = { ...state, planRecommendation: defaultPlan };
-        await saveGoalsInterview(state);
-      }
-      
+      const state = await loadGoalsInterview();
       setGoalsState(state);
-      
-      // Ensure a minimal plan exists for RequireOnboarding
-      const existingPlan = await get('plan', 'current');
-      if (!existingPlan) {
-        const minimalPlan = {
-          version: '1.0',
-          cycle: {
-            weeks: state.planRecommendation?.weeksPlanned?.value || 8,
-            startISO: new Date().toISOString().split('T')[0]
-          }
-        };
-        await put('plan', 'current', minimalPlan);
-      }
       
       // Load blockers
       const savedBlockers = await get<Blocker[]>('plan', 'blockers');

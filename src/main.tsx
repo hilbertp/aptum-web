@@ -55,7 +55,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="preview" element={<Preview />} />
           </Route>
           <Route path="/strategy" element={<RequireOnboarding><Strategy /></RequireOnboarding>} />
-          <Route path="/mesocycle" element={<Mesocycle />} />
+          <Route path="/mesocycle" element={<RequireOnboarding><Mesocycle /></RequireOnboarding>} />
           <Route path="/schedule" element={<RequireOnboarding><Schedule /></RequireOnboarding>} />
           <Route path="/session" element={<RequireOnboarding><Session /></RequireOnboarding>} />
           <Route path="/week" element={<RequireOnboarding><Weekly /></RequireOnboarding>} />
