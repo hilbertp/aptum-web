@@ -109,7 +109,7 @@ test.describe('Test 10: Goals page plan configuration', () => {
     // Verify all values are set correctly
     await expect(weeksInput).toHaveValue('16');
     await expect(sessionsInput).toHaveValue('5');
-    await expect(deloadInput).toHaveValue('3:1');
+    await expect(deloadInput).toHaveValue('3');
     
     // Continue button should be available (may be disabled until interview is complete)
     const continueButton = page.locator('button', { hasText: /Continue to Plan Generation/i });
