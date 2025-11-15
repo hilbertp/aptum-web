@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "created_at": 1763176514.5763333,
+  "embedding_model": "text-embedding-3-small",
+  "embedding_dim": 1536,
+  "total_chunks": 2615,
+  "files": [
+    "chunks-000.json"
+  ]
+}
