@@ -67,7 +67,12 @@ export default function Settings() {
         <div className="card p-4">
           <h2 className="font-semibold">Units</h2>
           <div className="text-sm text-muted mb-2">Switch between metric and imperial. Saved to app settings.</div>
-          <select className="input max-w-xs" value={settings.units} onChange={e => settings.setUnits(e.target.value as any)}>
+          <select 
+            className="input max-w-xs" 
+            data-testid="units-select"
+            value={settings.units} 
+            onChange={e => settings.setUnits(e.target.value as any)}
+          >
             <option value="metric">metric</option>
             <option value="imperial">imperial</option>
           </select>
