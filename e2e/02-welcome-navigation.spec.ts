@@ -19,8 +19,18 @@ test.describe('Test 2: Welcome screen navigation flow', () => {
     await expect(page.locator('h2')).toContainText('Your Profile');
 
     // Step 3: On the profile screen, click the Continue button
-    // First fill in required fields to enable Continue
+    // Fill in all required fields
     await page.locator('input[type="number"]').first().fill('30'); // age
+    await page.locator('label:has-text("Height") input[type="number"]').fill('180'); // height
+    await page.locator('label:has-text("Weight") input[type="number"]').fill('80'); // weight
+    
+    // Select required dropdowns
+    const liftingSelect = page.locator('select').nth(1); // After gender select
+    await liftingSelect.selectOption('novice');
+    
+    const fitnessSelect = page.locator('select').nth(2); // After lifting select
+    await fitnessSelect.selectOption('beginner');
+    
     await page.locator('button', { hasText: 'Continue' }).click();
 
     // Expected 2: After clicking Continue on profile, the connect screen is displayed

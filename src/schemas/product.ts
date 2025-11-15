@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
-export const ProfileSchema = z.object({
-  ageYears: z.number().int().positive().optional(),
+// Base schema for type inference (allows undefined during form input)
+const ProfileSchemaBase = z.object({
+  ageYears: z.number().int().optional(),
   gender: z.enum(['Male', 'Female']).nullable().optional(),
   heightCm: z.number().optional(),
   weightKg: z.number().optional(),
@@ -10,6 +11,41 @@ export const ProfileSchema = z.object({
   liftingExperience: z.string().optional(),
   fitnessLevel: z.string().optional()
 });
+
+// Validation schema with strict requirements
+export const ProfileSchema = z.object({
+  ageYears: z.number({
+    required_error: "Age is required",
+    invalid_type_error: "Age must be a number"
+  })
+    .int("Age must be a whole number")
+    .min(6, "Age must be at least 6 years")
+    .max(120, "Age must be at most 120 years"),
+  gender: z.enum(['Male', 'Female']).nullable().optional(),
+  heightCm: z.number({
+    required_error: "Height is required",
+    invalid_type_error: "Height must be a number"
+  })
+    .min(50, "Height must be at least 50 cm (20 inches)")
+    .max(250, "Height must be at most 250 cm (98 inches)"),
+  weightKg: z.number({
+    required_error: "Weight is required",
+    invalid_type_error: "Weight must be a number"
+  })
+    .min(25, "Weight must be at least 25 kg (55 lbs)")
+    .max(250, "Weight must be at most 250 kg (551 lbs)"),
+  units: z.enum(['metric', 'imperial']).default('metric'),
+  endurance: z.string().optional(),
+  liftingExperience: z.string({
+    required_error: "Lifting experience is required"
+  }).min(1, "Please select your lifting experience"),
+  fitnessLevel: z.string({
+    required_error: "Fitness level is required"
+  }).min(1, "Please select your fitness level")
+});
+
+// Use the base schema for type inference
+export type Profile = z.infer<typeof ProfileSchemaBase>;
 
 export const PlanSchema = z.object({
   version: z.string(),
@@ -60,7 +96,7 @@ export const RecoverySchema = z.object({
   inputs: z.any().optional()
 });
 
-export type Profile = z.infer<typeof ProfileSchema>;
+// Profile type already defined above
 export type Plan = z.infer<typeof PlanSchema>;
 export type Session = z.infer<typeof SessionSchema>;
 export type Recovery = z.infer<typeof RecoverySchema>;

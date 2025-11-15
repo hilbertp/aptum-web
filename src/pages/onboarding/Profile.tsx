@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { useSettings } from '@/stores/settings';
 import type { Profile as ProfileType } from '@/schemas/product';
+import { ProfileSchema } from '@/schemas/product';
 import { saveProfile } from '@/services/coach';
 import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
 
 export default function Profile() {
   const nav = useNavigate();
   const settings = useSettings();
   const [profile, setProfile] = useState<ProfileType>({ units: settings.units } as ProfileType);
   const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const toDisplayHeight = (cm?: number) => {
     if (!cm) return '' as any;
@@ -58,8 +61,21 @@ export default function Profile() {
       <div className="text-sm text-muted">These details help the coach set appropriate volume, exercise selection, and how fast to progress week to week.</div>
       <div className="grid md:grid-cols-2 gap-3">
         <label className="grid gap-1">
-          <span className="text-sm">Age</span>
-          <input className="input" type="number" value={profile.ageYears ?? ''} onChange={(e) => setProfile({ ...profile, ageYears: Number(e.target.value) || undefined })} />
+          <span className="text-sm">Age <span className="text-red-500">*</span></span>
+          <input 
+            className={`input ${errors.ageYears ? 'border-red-300 bg-red-50' : ''}`}
+            type="number" 
+            value={profile.ageYears ?? ''} 
+            onChange={(e) => {
+              setProfile({ ...profile, ageYears: Number(e.target.value) || undefined });
+              if (errors.ageYears) {
+                const newErrors = { ...errors };
+                delete newErrors.ageYears;
+                setErrors(newErrors);
+              }
+            }} 
+          />
+          {errors.ageYears && <span className="text-xs text-red-600">{errors.ageYears}</span>}
         </label>
         <label className="grid gap-1">
           <span className="text-sm">Gender</span>
@@ -70,29 +86,78 @@ export default function Profile() {
           </select>
         </label>
         <label className="grid gap-1">
-          <span className="text-sm">Height ({settings.units === 'metric' ? 'cm' : 'in'})</span>
-          <input className="input" type="number" value={toDisplayHeight(profile.heightCm)} onChange={(e) => setProfile({ ...profile, heightCm: parseHeightInput(e.target.value) })} />
+          <span className="text-sm">Height ({settings.units === 'metric' ? 'cm' : 'in'}) <span className="text-red-500">*</span></span>
+          <input 
+            className={`input ${errors.heightCm ? 'border-red-300 bg-red-50' : ''}`}
+            type="number" 
+            value={toDisplayHeight(profile.heightCm)} 
+            onChange={(e) => {
+              setProfile({ ...profile, heightCm: parseHeightInput(e.target.value) });
+              if (errors.heightCm) {
+                const newErrors = { ...errors };
+                delete newErrors.heightCm;
+                setErrors(newErrors);
+              }
+            }} 
+          />
+          {errors.heightCm && <span className="text-xs text-red-600">{errors.heightCm}</span>}
         </label>
         <label className="grid gap-1">
-          <span className="text-sm">Weight ({settings.units === 'metric' ? 'kg' : 'lb'})</span>
-          <input className="input" type="number" value={toDisplayWeight(profile.weightKg)} onChange={(e) => setProfile({ ...profile, weightKg: parseWeightInput(e.target.value) })} />
+          <span className="text-sm">Weight ({settings.units === 'metric' ? 'kg' : 'lb'}) <span className="text-red-500">*</span></span>
+          <input 
+            className={`input ${errors.weightKg ? 'border-red-300 bg-red-50' : ''}`}
+            type="number" 
+            value={toDisplayWeight(profile.weightKg)} 
+            onChange={(e) => {
+              setProfile({ ...profile, weightKg: parseWeightInput(e.target.value) });
+              if (errors.weightKg) {
+                const newErrors = { ...errors };
+                delete newErrors.weightKg;
+                setErrors(newErrors);
+              }
+            }} 
+          />
+          {errors.weightKg && <span className="text-xs text-red-600">{errors.weightKg}</span>}
         </label>
         <label className="grid gap-1">
-          <span className="text-sm">Lifting experience</span>
-          <select className="input" value={(profile as any).liftingExperience || ''} onChange={(e) => setProfile({ ...profile, liftingExperience: (e.target.value || undefined) as any })}>
+          <span className="text-sm">Lifting experience <span className="text-red-500">*</span></span>
+          <select 
+            className={`input ${errors.liftingExperience ? 'border-red-300 bg-red-50' : ''}`}
+            value={(profile as any).liftingExperience || ''} 
+            onChange={(e) => {
+              setProfile({ ...profile, liftingExperience: (e.target.value || undefined) as any });
+              if (errors.liftingExperience) {
+                const newErrors = { ...errors };
+                delete newErrors.liftingExperience;
+                setErrors(newErrors);
+              }
+            }}
+          >
             <option value="">—</option>
             <option value="novice">Novice</option>
             <option value="intermediate">Intermediate</option>
             <option value="advanced">Advanced</option>
             <option value="expert">Expert</option>
           </select>
-          {(profile as any).liftingExperience && (
+          {errors.liftingExperience && <span className="text-xs text-red-600">{errors.liftingExperience}</span>}
+          {(profile as any).liftingExperience && !errors.liftingExperience && (
             <div className="text-xs text-muted">{expDesc[((profile as any).liftingExperience as string) || '']}</div>
           )}
         </label>
         <label className="grid gap-1">
-          <span className="text-sm">Fitness level</span>
-          <select className="input" value={(profile as any).fitnessLevel || ''} onChange={(e) => setProfile({ ...profile, fitnessLevel: (e.target.value || undefined) as any })}>
+          <span className="text-sm">Fitness level <span className="text-red-500">*</span></span>
+          <select 
+            className={`input ${errors.fitnessLevel ? 'border-red-300 bg-red-50' : ''}`}
+            value={(profile as any).fitnessLevel || ''} 
+            onChange={(e) => {
+              setProfile({ ...profile, fitnessLevel: (e.target.value || undefined) as any });
+              if (errors.fitnessLevel) {
+                const newErrors = { ...errors };
+                delete newErrors.fitnessLevel;
+                setErrors(newErrors);
+              }
+            }}
+          >
             <option value="">—</option>
             <option value="beginner">Beginner</option>
             <option value="developing">Developing</option>
@@ -100,7 +165,8 @@ export default function Profile() {
             <option value="athletic">Athletic</option>
             <option value="elite">Elite</option>
           </select>
-          {(profile as any).fitnessLevel && (
+          {errors.fitnessLevel && <span className="text-xs text-red-600">{errors.fitnessLevel}</span>}
+          {(profile as any).fitnessLevel && !errors.fitnessLevel && (
             <div className="text-xs text-muted">{fitDesc[((profile as any).fitnessLevel as string) || '']}</div>
           )}
         </label>
@@ -113,8 +179,44 @@ export default function Profile() {
         </select>
       </label>
       <div className="text-xs text-muted">What this affects: starting loads, weekly volume targets, exercise emphasis (main lifts vs. variations), and progression rate (load steps, deload frequency).</div>
+      {Object.keys(errors).length > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded p-3 text-sm text-red-800" role="alert">
+          <div className="font-semibold mb-1">Please fix the following errors:</div>
+          <ul className="list-disc list-inside space-y-1">
+            {Object.entries(errors).map(([field, message]) => (
+              <li key={field}>{message}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <div className="mt-2 flex gap-2">
-        <button className="btn btn-primary" disabled={saving} onClick={async () => { setSaving(true); await saveProfile(profile); setSaving(false); nav('/onboarding/connect'); }}>{saving ? 'Saving…' : 'Continue'}</button>
+        <button 
+          className="btn btn-primary" 
+          disabled={saving} 
+          onClick={async () => { 
+            // Validate profile before saving
+            setErrors({});
+            try {
+              ProfileSchema.parse(profile);
+              setSaving(true);
+              await saveProfile(profile);
+              setSaving(false);
+              nav('/onboarding/connect');
+            } catch (err) {
+              if (err instanceof z.ZodError) {
+                const fieldErrors: Record<string, string> = {};
+                err.errors.forEach((error) => {
+                  const field = error.path[0] as string;
+                  fieldErrors[field] = error.message;
+                });
+                setErrors(fieldErrors);
+              }
+              setSaving(false);
+            }
+          }}
+        >
+          {saving ? 'Saving…' : 'Continue'}
+        </button>
         <button className="btn" onClick={() => nav('/onboarding/welcome')}>Back</button>
       </div>
     </div>

@@ -82,12 +82,12 @@ test.describe('Test 4: Profile screen validation unhappy paths', () => {
 
   test('4c: Weight below minimum should show validation error', async ({ page }) => {
     const weightInput = page.locator('label:has-text("Weight") input[type="number"]');
-    await weightInput.fill('29');
+    await weightInput.fill('24');
     await fillValidProfile(page, 'weight');
     await page.locator('button', { hasText: 'Continue' }).click();
 
     // Expected 1: Weight validation error stating minimum weight
-    const errorMessage = page.locator('[class*="error"], [role="alert"]').filter({ hasText: /weight|minimum|30/i });
+    const errorMessage = page.locator('[class*="error"], [role="alert"]').filter({ hasText: /weight|minimum|25/i });
     await expect(errorMessage).toBeVisible({ timeout: 2000 });
 
     // Expected 2: Navigation is blocked
