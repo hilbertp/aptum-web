@@ -16,37 +16,36 @@ test.describe('Test 7: Lifting and fitness description mapping', () => {
   test('should show correct lifting experience descriptions', async ({ page }) => {
     // Find the lifting experience select
     const liftingSelect = page.locator('select', { has: page.locator('option[value="novice"]') });
+    const liftingLabel = page.locator('label:has-text("Lifting experience")');
     
     // Step 2-3: Select Novice and observe the description
     await liftingSelect.selectOption('novice');
     
-    // Expected 1: Novice description is visible and correct
-    const noviceDesc = page.locator('text=/learning the basics|getting the movement right|showing up and practicing/i');
+    // Expected 1: Novice description is visible within the lifting label
+    const noviceDesc = liftingLabel.locator('text=/learning the basics/i');
     await expect(noviceDesc).toBeVisible();
     
     // Step 4-5: Change to Intermediate and observe
     await liftingSelect.selectOption('intermediate');
     
-    // Expected 1 continued: Novice description disappears, Intermediate description appears
-    await expect(noviceDesc).not.toBeVisible();
-    const intermediateDesc = page.locator('text=/train consistently|understand.*RIR and RPE|progressive overload/i');
+    // Expected 1 continued: Intermediate description appears
+    const intermediateDesc = liftingLabel.locator('text=/train consistently/i');
     await expect(intermediateDesc).toBeVisible();
+    await expect(noviceDesc).not.toBeVisible();
     
     // Test Advanced
     await liftingSelect.selectOption('advanced');
-    await expect(intermediateDesc).not.toBeVisible();
-    const advancedDesc = page.locator('text=/training seriously for years|intentionally.*RIR and RPE|periodization/i');
+    const advancedDesc = liftingLabel.locator('text=/training seriously for years/i');
     await expect(advancedDesc).toBeVisible();
+    await expect(intermediateDesc).not.toBeVisible();
     
     // Test Expert
     await liftingSelect.selectOption('expert');
-    await expect(advancedDesc).not.toBeVisible();
-    const expertDesc = page.locator('text=/many years of lifting|autoregulate|peak.*rebuild/i');
+    const expertDesc = liftingLabel.locator('text=/many years of lifting/i');
     await expect(expertDesc).toBeVisible();
+    await expect(advancedDesc).not.toBeVisible();
     
     // Expected: At any time, only one lifting description is visible
-    // Count visible descriptions in the lifting area
-    const liftingLabel = page.locator('label:has-text("Lifting experience")');
     const visibleDescs = await liftingLabel.locator('.text-xs.text-muted').count();
     expect(visibleDescs).toBeLessThanOrEqual(1);
   });
@@ -101,27 +100,29 @@ test.describe('Test 7: Lifting and fitness description mapping', () => {
     const fitnessSelect = page.locator('select', { has: page.locator('option[value="beginner"]') });
     await fitnessSelect.selectOption('athletic');
     
-    // Verify correct descriptions are shown
-    const intermediateDesc = page.locator('text=/train consistently|understand.*RIR and RPE/i');
-    const athleticDesc = page.locator('text=/train hard and long|Back.*to.*back workouts/i');
+    // Verify correct descriptions are shown using scoped locators
+    const liftingLabel = page.locator('label:has-text("Lifting experience")');
+    const fitnessLabel = page.locator('label:has-text("Fitness level")');
+    
+    const intermediateDesc = liftingLabel.locator('text=/train consistently/i');
+    const athleticDesc = fitnessLabel.locator('text=/train hard and long/i');
     
     await expect(intermediateDesc).toBeVisible();
     await expect(athleticDesc).toBeVisible();
     
-    // Verify no other descriptions are visible
-    const noviceDesc = page.locator('text=/learning the basics/i');
-    const beginnerDesc = page.locator('text=/get tired easily/i');
+    // Verify no other descriptions are visible in these labels
+    const noviceDesc = liftingLabel.locator('text=/learning the basics/i');
+    const beginnerDesc = fitnessLabel.locator('text=/get tired easily/i');
     
     await expect(noviceDesc).not.toBeVisible();
     await expect(beginnerDesc).not.toBeVisible();
     
-    // Expected 3: No overlapping descriptions
-    // Count total visible description texts
-    const allDescriptions = page.locator('.text-xs.text-muted');
-    const count = await allDescriptions.count();
+    // Expected 3: Exactly one description per label
+    const liftingDescs = await liftingLabel.locator('.text-xs.text-muted').count();
+    const fitnessDescs = await fitnessLabel.locator('.text-xs.text-muted').count();
     
-    // Should have exactly 2 descriptions visible (one for lifting, one for fitness)
-    expect(count).toBe(2);
+    expect(liftingDescs).toBe(1);
+    expect(fitnessDescs).toBe(1);
   });
 
   test('should update description immediately on selection change', async ({ page }) => {

@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSettings } from '@/stores/settings';
 import type { Profile as ProfileType } from '@/schemas/product';
 import { ProfileSchema } from '@/schemas/product';
-import { saveProfile } from '@/services/coach';
+import { saveProfile, loadProfile } from '@/services/coach';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 
@@ -12,6 +12,19 @@ export default function Profile() {
   const [profile, setProfile] = useState<ProfileType>({ units: settings.units } as ProfileType);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+
+  // Load saved profile data on mount
+  useEffect(() => {
+    loadProfile().then(saved => {
+      if (saved) {
+        setProfile({ ...saved, units: settings.units });
+      }
+      setLoading(false);
+    }).catch(() => {
+      setLoading(false);
+    });
+  }, [settings.units]);
 
   const toDisplayHeight = (cm?: number) => {
     if (!cm) return '' as any;
@@ -54,6 +67,14 @@ export default function Profile() {
     elite:
       'You have exceptional stamina and recovery. You can push at high intensity for long stretches and stay sharp across demanding training weeks.'
   };
+
+  if (loading) {
+    return (
+      <div className="card p-4">
+        <div className="text-sm text-muted">Loading profile...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="card p-4 grid gap-3">
