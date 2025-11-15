@@ -153,32 +153,32 @@ export default function Strategy() {
 
       {/* Review Results Banner */}
       {reviewResult && (
-        <div className="card p-4 bg-blue-50 border-blue-200">
-          <div className="flex items-start gap-3">
-            <Lightbulb className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+        <div className="card p-3 bg-blue-50 border-blue-200">
+          <div className="flex items-start gap-2">
+            <Lightbulb className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h3 className="font-semibold mb-2">Strategy Review</h3>
-              <p className="text-sm mb-3">{reviewResult.analysis}</p>
+              <h3 className="font-semibold text-sm mb-1">Strategy Review</h3>
+              <p className="text-xs mb-2">{reviewResult.analysis}</p>
               
               {reviewResult.strengths.length > 0 && (
-                <div className="mb-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <CheckCircle2 className="w-4 h-4 text-green-600" />
-                    <span className="text-sm font-medium">Strengths</span>
+                <div className="mb-2">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+                    <span className="text-xs font-medium">Strengths</span>
                   </div>
-                  <ul className="text-sm text-muted list-disc list-inside ml-6">
+                  <ul className="text-xs text-muted list-disc list-inside ml-5">
                     {reviewResult.strengths.map((s, i) => <li key={i}>{s}</li>)}
                   </ul>
                 </div>
               )}
 
               {reviewResult.weaknesses.length > 0 && (
-                <div className="mb-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <AlertCircle className="w-4 h-4 text-amber-600" />
-                    <span className="text-sm font-medium">Areas to Consider</span>
+                <div className="mb-2">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                    <span className="text-xs font-medium">Areas to Consider</span>
                   </div>
-                  <ul className="text-sm text-muted list-disc list-inside ml-6">
+                  <ul className="text-xs text-muted list-disc list-inside ml-5">
                     {reviewResult.weaknesses.map((w, i) => <li key={i}>{w}</li>)}
                   </ul>
                 </div>
@@ -186,21 +186,21 @@ export default function Strategy() {
 
               {reviewResult.suggestions.length > 0 && (
                 <div>
-                  <div className="text-sm font-medium mb-1">Suggestions</div>
-                  <div className="grid gap-2">
+                  <div className="text-xs font-medium mb-1">Suggestions</div>
+                  <div className="grid gap-1.5">
                     {reviewResult.suggestions.map((sug, i) => (
-                      <div key={i} className="flex items-start justify-between p-2 bg-white rounded border border-line gap-2">
-                        <div className="text-sm flex-1">
+                      <div key={i} className="flex items-start justify-between p-1.5 bg-white rounded border border-line gap-2">
+                        <div className="text-xs flex-1">
                           <div className="font-medium mb-0.5">{sug.field}</div>
-                          <div className="text-xs text-muted mb-1">{sug.reason}</div>
-                          <div className="text-xs">
+                          <div className="text-[10px] text-muted mb-0.5">{sug.reason}</div>
+                          <div className="text-[10px]">
                             <span className="text-muted">Current:</span> <span className="font-mono">{JSON.stringify(sug.currentValue)}</span>
                             {' → '}
                             <span className="text-muted">Suggested:</span> <span className="font-mono text-aptum-blue">{JSON.stringify(sug.suggestedValue)}</span>
                           </div>
                         </div>
                         <button 
-                          className="btn btn-sm text-xs flex-shrink-0"
+                          className="px-2 py-1 text-[10px] bg-aptum-blue text-white rounded hover:bg-aptum-blue/90 flex-shrink-0"
                           onClick={() => {
                             if (plan) {
                               updateField(sug.field as keyof EnhancedPlan, sug.suggestedValue);
@@ -243,11 +243,11 @@ export default function Strategy() {
 
               {reviewResult.warnings && reviewResult.warnings.length > 0 && (
                 <div className="pt-2 border-t border-line">
-                  <div className="flex items-center gap-2 mb-1">
-                    <AlertCircle className="w-4 h-4 text-red-600" />
-                    <span className="text-sm font-medium text-red-600">Warnings</span>
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <AlertCircle className="w-3.5 h-3.5 text-red-600" />
+                    <span className="text-xs font-medium text-red-600">Warnings</span>
                   </div>
-                  <ul className="text-sm text-red-700 list-disc list-inside ml-6">
+                  <ul className="text-xs text-red-700 list-disc list-inside ml-5">
                     {reviewResult.warnings.map((w, i) => <li key={i}>{w}</li>)}
                   </ul>
                 </div>
@@ -260,44 +260,44 @@ export default function Strategy() {
       {/* Plan Configuration */}
       <div className="grid lg:grid-cols-2 gap-4">
         {/* Left Column: Core Plan Fields */}
-        <div className="card p-4">
-          <h2 className="font-semibold mb-4">Mesocycle Configuration</h2>
-          <div className="grid gap-3">
-            {plan.weeksPlanned && (
-              <NumberField
-                label="Weeks Planned"
-                field={plan.weeksPlanned}
-                onValueChange={(v) => updateField('weeksPlanned', v)}
-                onLockToggle={() => toggleLock('weeksPlanned')}
-                min={4}
-                max={20}
-                compact={true}
-                helpText="Total duration of your training mesocycle"
-              />
-            )}
+        <div className="card p-3">
+          <h2 className="font-semibold text-sm mb-2">Mesocycle Configuration</h2>
+          <div className="space-y-2">
+            {/* Basic settings in 3-column grid */}
+            <div className="grid grid-cols-3 gap-2">
+              {plan.weeksPlanned && (
+                <NumberField
+                  label="Weeks"
+                  field={plan.weeksPlanned}
+                  onValueChange={(v) => updateField('weeksPlanned', v)}
+                  onLockToggle={() => toggleLock('weeksPlanned')}
+                  min={4}
+                  max={20}
+                  compact={true}
+                />
+              )}
 
-            {plan.sessionsPerWeek && (
-              <NumberField
-                label="Sessions Per Week"
-                field={plan.sessionsPerWeek}
-                onValueChange={(v) => updateField('sessionsPerWeek', v)}
-                onLockToggle={() => toggleLock('sessionsPerWeek')}
-                min={2}
-                max={14}
-                compact={true}
-                helpText="Training frequency per week"
-              />
-            )}
+              {plan.sessionsPerWeek && (
+                <NumberField
+                  label="Sessions/Week"
+                  field={plan.sessionsPerWeek}
+                  onValueChange={(v) => updateField('sessionsPerWeek', v)}
+                  onLockToggle={() => toggleLock('sessionsPerWeek')}
+                  min={2}
+                  max={14}
+                  compact={true}
+                />
+              )}
 
-            {plan.buildToDeloadRatio && (
-              <DeloadRatioField
-                label="Build-to-Deload Ratio"
-                field={plan.buildToDeloadRatio}
-                onValueChange={(v) => updateField('buildToDeloadRatio', v)}
-                onLockToggle={() => toggleLock('buildToDeloadRatio')}
-                helpText="Ratio of building weeks to recovery weeks"
-              />
-            )}
+              {plan.buildToDeloadRatio && (
+                <DeloadRatioField
+                  label="Deload Ratio"
+                  field={plan.buildToDeloadRatio}
+                  onValueChange={(v) => updateField('buildToDeloadRatio', v)}
+                  onLockToggle={() => toggleLock('buildToDeloadRatio')}
+                />
+              )}
+            </div>
 
             {plan.periodizationModel && (
               <PeriodizationModelSelector

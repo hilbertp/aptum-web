@@ -228,52 +228,60 @@ export default function Goals() {
       </div>
 
       {/* Plan Recommendation Panel */}
-      <div className="card p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold">Plan Recommendation</h2>
+      <div className="card p-3">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="font-semibold text-sm">Plan Recommendation</h2>
           {hasApiKey && canContinue && (
             <button 
-              className="btn btn-sm flex items-center gap-1.5"
+              className="flex items-center gap-1 px-2 py-1 text-xs bg-panel hover:bg-gray-200 rounded border border-line transition-colors"
               onClick={handleRebuild}
               disabled={rebuilding}
             >
-              <RefreshCw className={`w-4 h-4 ${rebuilding ? 'animate-spin' : ''}`} />
-              {rebuilding ? 'Rebuilding...' : 'Rebuild Plan'}
+              <RefreshCw className={`w-3 h-3 ${rebuilding ? 'animate-spin' : ''}`} />
+              {rebuilding ? 'Rebuilding...' : 'Rebuild'}
             </button>
           )}
         </div>
 
         {!hasApiKey ? (
-          <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-200">
+          <div className="text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-200 mb-2">
             ⚠️ API key not configured. The plan scaffold below can be edited manually, but AI recommendations require an OpenAI API key.
           </div>
         ) : !canContinue ? (
-          <div className="text-sm text-muted">Complete the interview to get AI-powered plan recommendations.</div>
+          <div className="text-xs text-muted mb-2">Complete the interview to get AI-powered plan recommendations.</div>
         ) : null}
 
         {plan && (
-          <div className="grid gap-3 mt-4">
-            <NumberField
-              label="Weeks Planned"
-              field={adaptPlanField<number>(plan.weeksPlanned)}
-              onValueChange={(v) => updateField('weeksPlanned', v)}
-              onLockToggle={() => toggleLock('weeksPlanned')}
-              min={4}
-              max={16}
-              compact={true}
-              helpText="Total duration of your mesocycle"
-            />
+          <div className="space-y-3 mt-3">
+            {/* Basic Settings - 3 columns for compact layout */}
+            <div className="grid grid-cols-3 gap-2">
+              <NumberField
+                label="Weeks"
+                field={adaptPlanField<number>(plan.weeksPlanned)}
+                onValueChange={(v) => updateField('weeksPlanned', v)}
+                onLockToggle={() => toggleLock('weeksPlanned')}
+                min={4}
+                max={16}
+                compact={true}
+              />
 
-            <NumberField
-              label="Sessions Per Week"
-              field={adaptPlanField<number>(plan.sessionsPerWeek)}
-              onValueChange={(v) => updateField('sessionsPerWeek', v)}
-              onLockToggle={() => toggleLock('sessionsPerWeek')}
-              min={2}
-              max={21}
-              compact={true}
-              helpText="Training sessions per week"
-            />
+              <NumberField
+                label="Sessions/Week"
+                field={adaptPlanField<number>(plan.sessionsPerWeek)}
+                onValueChange={(v) => updateField('sessionsPerWeek', v)}
+                onLockToggle={() => toggleLock('sessionsPerWeek')}
+                min={2}
+                max={21}
+                compact={true}
+              />
+
+              <DeloadRatioField
+                label="Deload Ratio"
+                field={adaptPlanField<string>(plan.buildToDeloadRatio)}
+                onValueChange={(v) => updateField('buildToDeloadRatio', v)}
+                onLockToggle={() => toggleLock('buildToDeloadRatio')}
+              />
+            </div>
 
             <FocusAreasField
               field={plan.focusAreas}
@@ -286,14 +294,6 @@ export default function Goals() {
               focusAreas={plan.focusAreas.value || []}
               onUpdate={(v) => updateField('sessionDistribution', v)}
               onToggleLock={() => toggleLock('sessionDistribution')}
-            />
-
-            <DeloadRatioField
-              label="Build-to-Deload Ratio"
-              field={adaptPlanField<string>(plan.buildToDeloadRatio)}
-              onValueChange={(v) => updateField('buildToDeloadRatio', v)}
-              onLockToggle={() => toggleLock('buildToDeloadRatio')}
-              helpText="E.g., 3:1 = 3 weeks building, 1 week deload"
             />
 
             <ProgressionTypeField
@@ -316,13 +316,12 @@ export default function Goals() {
                 field={adaptPlanField<string>(plan.startingWeek)}
                 onValueChange={(v) => updateField('startingWeek', v)}
                 onLockToggle={() => toggleLock('startingWeek')}
-                helpText="When to start your mesocycle"
               />
             )}
           </div>
         )}
 
-        <div className="flex gap-2 mt-6 pt-4 border-t border-line">
+        <div className="flex gap-2 mt-3 pt-3 border-t border-line">
           <button 
             className="btn btn-primary" 
             disabled={!canContinue} 
@@ -373,11 +372,11 @@ function FocusAreasField({ field, onUpdate, onToggleLock }: {
   }
 
   return (
-    <div className={`grid gap-2 transition-all duration-300 ${field.highlight ? 'animate-pulse-once' : ''}`}>
+    <div className={`grid gap-1 transition-all duration-300 ${field.highlight ? 'animate-pulse-once' : ''}`}>
       <div className="flex items-center justify-between">
-        <label className="text-sm font-medium flex items-center gap-2">
+        <label className="text-xs font-medium flex items-center gap-1.5">
           Focus Areas (1-3)
-          <span className={`text-xs px-1.5 py-0.5 rounded ${
+          <span className={`text-[10px] px-1 py-0.5 rounded ${
             isLocked ? 'bg-gray-200 text-gray-700' :
             isSystemOwned ? 'bg-blue-100 text-blue-700' :
             'bg-green-100 text-green-700'
@@ -387,71 +386,54 @@ function FocusAreasField({ field, onUpdate, onToggleLock }: {
         </label>
         <button
           onClick={onToggleLock}
-          className="p-1 hover:bg-panel rounded transition-colors"
+          className="p-0.5 hover:bg-panel rounded transition-colors"
         >
-          {isLocked ? <Lock className="w-4 h-4 text-gray-500" /> : <Unlock className="w-4 h-4 text-gray-400" />}
+          {isLocked ? <Lock className="w-3.5 h-3.5 text-gray-500" /> : <Unlock className="w-3.5 h-3.5 text-gray-400" />}
         </button>
       </div>
 
-      {/* Selected Focus Areas */}
-      {selected.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {selected.map((area) => (
-            <div
-              key={area}
-              className="flex items-center gap-1.5 bg-aptum-blue text-white text-sm px-3 py-1.5 rounded-full"
-            >
-              <span>{area}</span>
+      {/* Suggested Focus Areas - Compact Grid */}
+      <div className={`p-2 rounded border ${field.highlight ? 'ring-2 ring-aptum-blue ring-opacity-50 border-aptum-blue' : 'border-line'}`}>
+        <div className="text-[10px] text-muted mb-1">Suggested:</div>
+        <div className="grid grid-cols-3 gap-1.5">
+          {SUGGESTED_FOCUS_AREAS.map((area) => {
+            const isSelected = selected.includes(area);
+            return (
               <button
-                onClick={() => removeArea(area)}
-                className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                key={area}
+                onClick={() => toggleArea(area)}
+                disabled={selected.length >= 3 && !isSelected}
+                className={`text-xs px-2 py-1 rounded transition-colors ${
+                  isSelected
+                    ? 'bg-aptum-blue text-white'
+                    : selected.length >= 3
+                    ? 'bg-panel text-gray-400 cursor-not-allowed'
+                    : 'bg-panel hover:bg-aptum-blue/10 hover:text-aptum-blue border border-line'
+                }`}
               >
-                <X className="w-3 h-3" />
+                {area}
               </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Suggested Focus Areas */}
-      <div className={`p-3 rounded-lg border ${field.highlight ? 'ring-2 ring-aptum-blue ring-opacity-50 border-aptum-blue' : 'border-line'}`}>
-        <div className="text-xs text-muted mb-2">Suggested:</div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {SUGGESTED_FOCUS_AREAS.map((area) => (
-            <button
-              key={area}
-              onClick={() => toggleArea(area)}
-              disabled={selected.includes(area) || selected.length >= 3}
-              className={`text-xs px-2 py-1.5 rounded transition-colors ${
-                selected.includes(area)
-                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                  : selected.length >= 3
-                  ? 'bg-panel text-gray-400 cursor-not-allowed'
-                  : 'bg-panel hover:bg-aptum-blue hover:text-white border border-line'
-              }`}
-            >
-              {area}
-            </button>
-          ))}
+            );
+          })}
         </div>
 
         {/* Custom Focus Area Input */}
         {selected.length < 3 && (
-          <div className="mt-3 pt-3 border-t border-line">
+          <div className="mt-2 pt-2 border-t border-line">
             {!showCustomInput ? (
               <button
                 onClick={() => setShowCustomInput(true)}
-                className="flex items-center gap-1.5 text-xs text-aptum-blue hover:underline"
+                className="flex items-center gap-1 text-[10px] text-aptum-blue hover:underline"
               >
                 <Plus className="w-3 h-3" />
                 Add custom focus area
               </button>
             ) : (
-              <div className="flex gap-2">
+              <div className="flex gap-1.5">
                 <input
                   type="text"
-                  className="input flex-1 text-sm"
-                  placeholder="e.g., Olympic Lifting, Swimming..."
+                  className="input-compact flex-1 text-xs"
+                  placeholder="e.g., Olympic Lifting..."
                   value={customValue}
                   onChange={(e) => setCustomValue(e.target.value)}
                   onKeyDown={(e) => {
@@ -465,19 +447,10 @@ function FocusAreasField({ field, onUpdate, onToggleLock }: {
                 />
                 <button
                   onClick={addCustomArea}
-                  className="btn btn-sm btn-primary"
+                  className="px-2 py-1 bg-aptum-blue text-white text-xs rounded hover:bg-aptum-blue/90"
                   disabled={!customValue.trim()}
                 >
                   Add
-                </button>
-                <button
-                  onClick={() => {
-                    setShowCustomInput(false);
-                    setCustomValue('');
-                  }}
-                  className="btn btn-sm"
-                >
-                  Cancel
                 </button>
               </div>
             )}
@@ -485,7 +458,7 @@ function FocusAreasField({ field, onUpdate, onToggleLock }: {
         )}
       </div>
 
-      <div className="text-xs text-muted">Selected: {selected.length}/3 • You can use suggested areas or create custom ones</div>
+      <div className="text-[10px] text-muted">Selected: {selected.length}/3 • You can use suggested areas or create custom ones</div>
     </div>
   );
 }
@@ -510,11 +483,11 @@ function SessionDistributionField({ field, focusAreas, onUpdate, onToggleLock }:
   }
 
   return (
-    <div className={`grid gap-1.5 transition-all duration-300 ${field.highlight ? 'animate-pulse-once' : ''}`}>
+    <div className={`grid gap-1 transition-all duration-300 ${field.highlight ? 'animate-pulse-once' : ''}`}>
       <div className="flex items-center justify-between">
-        <label className="text-sm font-medium flex items-center gap-2">
+        <label className="text-xs font-medium flex items-center gap-1.5">
           Session Distribution
-          <span className={`text-xs px-1.5 py-0.5 rounded ${
+          <span className={`text-[10px] px-1 py-0.5 rounded ${
             isLocked ? 'bg-gray-200 text-gray-700' :
             isSystemOwned ? 'bg-blue-100 text-blue-700' :
             'bg-green-100 text-green-700'
@@ -524,24 +497,24 @@ function SessionDistributionField({ field, focusAreas, onUpdate, onToggleLock }:
         </label>
         <button
           onClick={onToggleLock}
-          className="p-1 hover:bg-panel rounded transition-colors"
+          className="p-0.5 hover:bg-panel rounded transition-colors"
         >
-          {isLocked ? <Lock className="w-4 h-4 text-gray-500" /> : <Unlock className="w-4 h-4 text-gray-400" />}
+          {isLocked ? <Lock className="w-3.5 h-3.5 text-gray-500" /> : <Unlock className="w-3.5 h-3.5 text-gray-400" />}
         </button>
       </div>
-      <div className={`grid gap-2 p-3 rounded-lg border ${field.highlight ? 'ring-2 ring-aptum-blue ring-opacity-50 border-aptum-blue' : 'border-line'}`}>
+      <div className={`grid gap-1.5 p-2 rounded border ${field.highlight ? 'ring-2 ring-aptum-blue ring-opacity-50 border-aptum-blue' : 'border-line'}`}>
         {focusAreas.map((area) => (
           <div key={area} className="flex items-center gap-2">
-            <span className="text-sm flex-1">{area}</span>
+            <span className="text-xs flex-1">{area}</span>
             <input
               type="number"
-              className="input w-20 text-sm"
+              className="input-compact w-16 text-xs"
               value={distribution[area] || 0}
               onChange={(e) => updateDistribution(area, Number(e.target.value))}
               min={0}
               max={21}
             />
-            <span className="text-xs text-muted">sessions/week</span>
+            <span className="text-[10px] text-muted whitespace-nowrap">sessions/week</span>
           </div>
         ))}
       </div>
@@ -560,11 +533,11 @@ function ProgressionTypeField({ field, onUpdate, onToggleLock }: {
   const isSystemOwned = field.ownership === 'system-owned';
 
   return (
-    <div className={`grid gap-1.5 transition-all duration-300 ${field.highlight ? 'animate-pulse-once' : ''}`}>
+    <div className={`grid gap-1 transition-all duration-300 ${field.highlight ? 'animate-pulse-once' : ''}`}>
       <div className="flex items-center justify-between">
-        <label className="text-sm font-medium flex items-center gap-2">
+        <label className="text-xs font-medium flex items-center gap-1.5">
           Progression Type
-          <span className={`text-xs px-1.5 py-0.5 rounded ${
+          <span className={`text-[10px] px-1 py-0.5 rounded ${
             isLocked ? 'bg-gray-200 text-gray-700' :
             isSystemOwned ? 'bg-blue-100 text-blue-700' :
             'bg-green-100 text-green-700'
@@ -574,35 +547,35 @@ function ProgressionTypeField({ field, onUpdate, onToggleLock }: {
         </label>
         <button
           onClick={onToggleLock}
-          className="p-1 hover:bg-panel rounded transition-colors"
+          className="p-0.5 hover:bg-panel rounded transition-colors"
         >
-          {isLocked ? <Lock className="w-4 h-4 text-gray-500" /> : <Unlock className="w-4 h-4 text-gray-400" />}
+          {isLocked ? <Lock className="w-3.5 h-3.5 text-gray-500" /> : <Unlock className="w-3.5 h-3.5 text-gray-400" />}
         </button>
       </div>
-      <div className={`grid grid-cols-2 gap-3 p-3 rounded-lg border ${field.highlight ? 'ring-2 ring-aptum-blue ring-opacity-50 border-aptum-blue' : 'border-line'}`}>
+      <div className={`grid grid-cols-2 gap-2 p-2 rounded border ${field.highlight ? 'ring-2 ring-aptum-blue ring-opacity-50 border-aptum-blue' : 'border-line'}`}>
         <button
           onClick={() => onUpdate('linear')}
-          className={`p-3 rounded-lg border-2 transition-all text-left ${
+          className={`p-2 rounded border-2 transition-all text-left ${
             value === 'linear'
               ? 'border-aptum-blue bg-aptum-blue/5'
               : 'border-line hover:border-gray-300'
           }`}
         >
-          <div className="font-semibold text-sm mb-1">Linear</div>
-          <div className="text-xs text-muted">
+          <div className="font-semibold text-xs mb-0.5">Linear</div>
+          <div className="text-[10px] text-muted leading-tight">
             Beginner-friendly, 4-8 weeks, steady progression
           </div>
         </button>
         <button
           onClick={() => onUpdate('periodized')}
-          className={`p-3 rounded-lg border-2 transition-all text-left ${
+          className={`p-2 rounded border-2 transition-all text-left ${
             value === 'periodized'
               ? 'border-aptum-blue bg-aptum-blue/5'
               : 'border-line hover:border-gray-300'
           }`}
         >
-          <div className="font-semibold text-sm mb-1">Periodized</div>
-          <div className="text-xs text-muted">
+          <div className="font-semibold text-xs mb-0.5">Periodized</div>
+          <div className="text-[10px] text-muted leading-tight">
             Advanced models with varied intensities and volumes
           </div>
         </button>
