@@ -1,25 +1,27 @@
 import { useEffect, useState } from 'react';
-import { loadPlan } from '@/services/coach';
-import type { Plan, EnhancedPlan, PeriodizationModel } from '@/schemas/product';
+import { loadPlan, loadProfile, reviewCurrentStrategy, type StrategyReview } from '@/services/coach';
+import type { Plan, EnhancedPlan, PeriodizationModel, Profile } from '@/schemas/product';
 import { put, get } from '@/services/storage';
 import { NumberField, TextField } from '@/components/mesocycle/PlanField';
 import { PeriodizationModelSelector } from '@/components/mesocycle/PeriodizationModelSelector';
 import { createPlanField } from '@/services/planEngine';
 import { AlertCircle, CheckCircle2, Lightbulb, RefreshCw } from 'lucide-react';
+import { byok } from '@/services/byok';
 
 export default function Strategy() {
   const [plan, setPlan] = useState<Partial<EnhancedPlan> | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [saving, setSaving] = useState(false);
   const [reviewing, setReviewing] = useState(false);
-  const [reviewResult, setReviewResult] = useState<{
-    analysis: string;
-    strengths: string[];
-    weaknesses: string[];
-    suggestions: Array<{ field: string; reason: string; suggestedValue: any }>;
-  } | null>(null);
+  const [reviewResult, setReviewResult] = useState<StrategyReview | null>(null);
+  const hasApiKey = !!byok.get().apiKey;
 
   useEffect(() => {
     (async () => {
+      // Load profile
+      const userProfile = await loadProfile();
+      setProfile(userProfile || null);
+
       // Try to load enhanced plan first, fallback to basic plan
       let enhancedPlan = await get<Partial<EnhancedPlan>>('plan', 'enhanced');
       if (!enhancedPlan) {
@@ -54,20 +56,34 @@ export default function Strategy() {
   };
 
   const handleReviewStrategy = async () => {
-    setReviewing(true);
-    // TODO: Integrate with AI coach service for strategy review
-    // For now, show a placeholder
-    setTimeout(() => {
+    if (!plan) return;
+    
+    if (!hasApiKey) {
       setReviewResult({
-        analysis: 'Strategy review will be available once AI integration is complete.',
-        strengths: ['Well-structured mesocycle', 'Appropriate weekly volume'],
-        weaknesses: ['Consider adding more recovery weeks'],
-        suggestions: [
-          { field: 'buildToDeloadRatio', reason: 'More frequent deloads recommended for longevity', suggestedValue: '3:1' }
-        ]
+        analysis: 'API key required for strategy review. Please configure your OpenAI API key in Settings.',
+        strengths: [],
+        weaknesses: [],
+        suggestions: [],
+        warnings: ['No API key configured']
       });
+      return;
+    }
+
+    setReviewing(true);
+    try {
+      const review = await reviewCurrentStrategy(plan, profile || undefined);
+      setReviewResult(review);
+    } catch (error: any) {
+      setReviewResult({
+        analysis: `Error during strategy review: ${error?.message || 'Unknown error'}`,
+        strengths: [],
+        weaknesses: [],
+        suggestions: [],
+        warnings: ['Strategy review failed. Please try again.']
+      });
+    } finally {
       setReviewing(false);
-    }, 1500);
+    }
   };
 
   const updateField = <T,>(field: keyof EnhancedPlan, value: T) => {
@@ -173,14 +189,67 @@ export default function Strategy() {
                   <div className="text-sm font-medium mb-1">Suggestions</div>
                   <div className="grid gap-2">
                     {reviewResult.suggestions.map((sug, i) => (
-                      <div key={i} className="flex items-center justify-between p-2 bg-white rounded border border-line">
-                        <div className="text-sm">
-                          <span className="font-medium">{sug.field}:</span> {sug.reason}
+                      <div key={i} className="flex items-start justify-between p-2 bg-white rounded border border-line gap-2">
+                        <div className="text-sm flex-1">
+                          <div className="font-medium mb-0.5">{sug.field}</div>
+                          <div className="text-xs text-muted mb-1">{sug.reason}</div>
+                          <div className="text-xs">
+                            <span className="text-muted">Current:</span> <span className="font-mono">{JSON.stringify(sug.currentValue)}</span>
+                            {' → '}
+                            <span className="text-muted">Suggested:</span> <span className="font-mono text-aptum-blue">{JSON.stringify(sug.suggestedValue)}</span>
+                          </div>
                         </div>
-                        <button className="btn btn-sm text-xs">Apply</button>
+                        <button 
+                          className="btn btn-sm text-xs flex-shrink-0"
+                          onClick={() => {
+                            if (plan) {
+                              updateField(sug.field as keyof EnhancedPlan, sug.suggestedValue);
+                              // Show success feedback
+                              const updatedSuggestions = reviewResult.suggestions.filter((_, idx) => idx !== i);
+                              setReviewResult({ ...reviewResult, suggestions: updatedSuggestions });
+                            }
+                          }}
+                        >
+                          Apply
+                        </button>
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {reviewResult.alternativeModels && reviewResult.alternativeModels.length > 0 && (
+                <div className="pt-2 border-t border-line">
+                  <div className="text-sm font-medium mb-1">Alternative Periodization Models</div>
+                  <div className="text-xs text-muted mb-2">The AI suggests considering these alternative models for your goals:</div>
+                  <div className="flex flex-wrap gap-2">
+                    {reviewResult.alternativeModels.map((modelKey) => (
+                      <button
+                        key={modelKey}
+                        className="text-xs px-2 py-1 rounded bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors"
+                        onClick={() => {
+                          if (plan && plan.periodizationModel) {
+                            updateField('periodizationModel', modelKey);
+                            setReviewResult(null); // Clear review after applying
+                          }
+                        }}
+                      >
+                        {modelKey.replace(/_/g, ' ')}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {reviewResult.warnings && reviewResult.warnings.length > 0 && (
+                <div className="pt-2 border-t border-line">
+                  <div className="flex items-center gap-2 mb-1">
+                    <AlertCircle className="w-4 h-4 text-red-600" />
+                    <span className="text-sm font-medium text-red-600">Warnings</span>
+                  </div>
+                  <ul className="text-sm text-red-700 list-disc list-inside ml-6">
+                    {reviewResult.warnings.map((w, i) => <li key={i}>{w}</li>)}
+                  </ul>
                 </div>
               )}
             </div>

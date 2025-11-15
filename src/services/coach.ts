@@ -1,7 +1,8 @@
 import { get, put } from './storage';
-import type { Plan, Profile } from '@/schemas/product';
+import type { Plan, Profile, EnhancedPlan, PeriodizationModel } from '@/schemas/product';
 import { search } from './retrieve';
 import { chatJSON } from './llm';
+import { MODELS } from './periodization';
 
 export type InterviewAnswers = {
   primaryGoal: 'hypertrophy' | 'strength' | 'fat loss' | 'endurance' | 'mixed';
@@ -76,4 +77,120 @@ Instructions:
 
 export async function loadPlan(): Promise<Plan | undefined> {
   return await get<Plan>('plan', 'current');
+}
+
+/**
+ * Strategy Review Result
+ */
+export type StrategyReview = {
+  analysis: string;
+  strengths: string[];
+  weaknesses: string[];
+  suggestions: Array<{
+    field: string;
+    currentValue: any;
+    suggestedValue: any;
+    reason: string;
+  }>;
+  alternativeModels?: PeriodizationModel[];
+  warnings?: string[];
+};
+
+/**
+ * Review the current strategy and provide AI-powered recommendations
+ */
+export async function reviewCurrentStrategy(plan: Partial<EnhancedPlan>, profile?: Profile): Promise<StrategyReview> {
+  // Retrieve KB based on current plan configuration
+  let snippets: string[] = [];
+  try {
+    const focusAreas = plan.focusAreas?.value || [];
+    const model = plan.periodizationModel?.value || 'unknown';
+    const query = `${focusAreas.join(' ')} ${model} periodization longevity training review`;
+    const results = await search(query, { topK: 5 });
+    snippets = results.map((r, i) => `[${i + 1}] ${(r.text || '').slice(0, 600)}\nSource: ${r.title || r.sourceUrl || r.id}`).filter(Boolean);
+  } catch {
+    // Proceed without KB if retrieval fails
+  }
+
+  const kbContext = snippets.length 
+    ? `Knowledge base references:\n${snippets.join('\n\n')}`
+    : 'No knowledge base context available.';
+
+  const currentModel = plan.periodizationModel?.value;
+  const modelInfo = currentModel ? MODELS[currentModel] : null;
+
+  const system = [
+    'You are an elite strength & conditioning coach reviewing a mesocycle training strategy.',
+    'Analyze the plan for effectiveness, safety, and alignment with longevity principles.',
+    'Provide specific, actionable feedback.',
+    '',
+    'AVAILABLE PERIODIZATION MODELS:',
+    ...Object.entries(MODELS).map(([key, model]) => 
+      `- ${key}: ${model.name} - ${model.description} (Best for: ${model.bestFor.join(', ')})`
+    ),
+    '',
+    'Respond with STRICT JSON matching this structure:',
+    '{',
+    '  "analysis": "Overall assessment of the strategy (2-3 sentences)",',
+    '  "strengths": ["strength 1", "strength 2", ...],',
+    '  "weaknesses": ["weakness 1", "weakness 2", ...],',
+    '  "suggestions": [',
+    '    {',
+    '      "field": "fieldName",',
+    '      "currentValue": current_value,',
+    '      "suggestedValue": suggested_value,',
+    '      "reason": "Why this change would improve the plan"',
+    '    }',
+    '  ],',
+    '  "alternativeModels": ["model_key_1", "model_key_2"] (optional, only if current model is suboptimal),',
+    '  "warnings": ["warning 1", ...] (optional, serious concerns only)',
+    '}',
+    '',
+    kbContext
+  ].join('\n');
+
+  const user = [
+    'Current Mesocycle Plan:',
+    JSON.stringify({
+      weeksPlanned: plan.weeksPlanned?.value,
+      sessionsPerWeek: plan.sessionsPerWeek?.value,
+      focusAreas: plan.focusAreas?.value,
+      buildToDeloadRatio: plan.buildToDeloadRatio?.value,
+      periodizationModel: plan.periodizationModel?.value,
+      sessionAllocations: plan.sessionAllocations?.value
+    }, null, 2),
+    '',
+    currentModel && modelInfo ? `Current Model: ${modelInfo.name}
+Description: ${modelInfo.description}
+Best For: ${modelInfo.bestFor.join(', ')}` : '',
+    '',
+    'Athlete Profile:',
+    JSON.stringify(profile || {}, null, 2),
+    '',
+    'Provide a comprehensive strategy review with specific, actionable suggestions.',
+    'Focus on longevity, sustainability, and effectiveness.',
+    'ONLY suggest alternative models if the current model is clearly inappropriate for the athlete.',
+    'Respond with STRICT JSON only.'
+  ].join('\n');
+
+  try {
+    const json = await chatJSON(system, user);
+    return {
+      analysis: json.analysis || 'Strategy review completed.',
+      strengths: json.strengths || [],
+      weaknesses: json.weaknesses || [],
+      suggestions: json.suggestions || [],
+      alternativeModels: json.alternativeModels || [],
+      warnings: json.warnings || []
+    };
+  } catch (error) {
+    // Fallback if AI unavailable
+    return {
+      analysis: 'AI strategy review is temporarily unavailable. Please ensure your API key is configured.',
+      strengths: [],
+      weaknesses: [],
+      suggestions: [],
+      warnings: ['Could not complete AI review. Check your API key configuration.']
+    };
+  }
 }

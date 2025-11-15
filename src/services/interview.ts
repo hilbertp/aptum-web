@@ -121,20 +121,41 @@ function systemPrompt(kbSnippets: string[], planRecommendation: PlanRecommendati
   const planInstructions = planRecommendation ? `
 PLAN RECOMMENDATIONS:
 You may recommend values for these fields ONLY if they are system-owned (ownership: "system-owned"):
-- weeksPlanned: number (4-16 weeks based on experience)
+- weeksPlanned: number (4-16 weeks based on experience and goal)
 - sessionsPerWeek: number (2-21, can include multiple sessions per day like lifting + cardio)
 - focusAreas: array of 1-3 areas from: ${focusAreas.join(', ')} (or custom athlete-defined areas)
-- sessionDistribution: object mapping each focus area to number of sessions
-- buildToDeloadRatio: string (e.g., "3:1", "4:1")
-- progressionType: "linear" (beginner-friendly, 4-8 weeks, steady progression) or "periodized" (advanced, varied intensities and volumes)
+- sessionDistribution: object mapping each focus area to number of sessions per week
+- buildToDeloadRatio: string (e.g., "3:1" means 3 weeks build + 1 week deload, "4:1", "5:1")
+- progressionType: "linear" (beginner-friendly, 4-8 weeks, steady progression) OR "periodized" (advanced, varied intensities/volumes with specific models)
+- periodizationModel: (ONLY if progressionType is "periodized") Choose from:
+  * "simple_progression": Continuous progressive overload, no phases (beginners, general fitness)
+  * "classical_linear": High volume → low volume, low intensity → high intensity over time (intermediate, strength focus, off-season)
+  * "block": Sequential blocks - Accumulation (volume) → Intensification (intensity) → Realization (peaking) (advanced, competition prep, powerlifters)
+  * "undulating": Daily/weekly variation in volume & intensity (intermediate to advanced, variety seekers)
+  * "atr": Accumulate → Transmute → Realize variant of block (advanced athletes, structured peaking)
+  * "conjugate": Concurrent max effort + dynamic effort + repetition work (advanced powerlifters, Westside-style)
+  * "reverse": Starts high intensity, progresses to volume (unique scenarios, advanced)
+  * "polarized": 80% low intensity + 20% high intensity (endurance athletes, longevity focus)
+  * "pyramidal": Volume base → intensity peak (visual pyramid structure, bodybuilders)
 - startingWeek: optional ISO date string
+
+PERIODIZATION MODEL SELECTION GUIDANCE:
+- For BEGINNERS (< 6 months): Use progressionType "linear", NO periodizationModel
+- For INTERMEDIATE (6-24 months): Consider "periodized" with "classical_linear" or "undulating"
+- For ADVANCED (2+ years): Consider "periodized" with "block", "conjugate", or "atr"
+- For LONGEVITY/HEALTH focus: Consider "polarized" model
+- For ENDURANCE athletes: "polarized" or "undulating"
+- For POWERLIFTERS/STRENGTH: "block", "conjugate", or "classical_linear"
+- For HYPERTROPHY: "undulating" or "classical_linear"
 
 CRITICAL RULES:
 1. NEVER update fields with ownership "locked" or "athlete-owned"
 2. Only update fields when NEW information clearly affects them
-3. ${isInitial ? 'Provide initial recommendations for ALL fields' : 'Only update RELEVANT fields that changed due to new information'}
-4. Explain EVERY change you make in your reply
+3. ${isInitial ? 'Provide initial recommendations for ALL fields including periodizationModel if progressionType is "periodized"' : 'Only update RELEVANT fields that changed due to new information'}
+4. Explain EVERY change you make in your reply, especially periodization model choice
 5. If a field is locked or athlete-owned, you MUST NOT change it
+6. periodizationModel should ONLY be set if progressionType is "periodized"
+7. For beginners, default to progressionType "linear" (no model needed)
 
 Current plan state (DO NOT change locked/athlete-owned fields):
 ${JSON.stringify(planRecommendation, null, 2)}
