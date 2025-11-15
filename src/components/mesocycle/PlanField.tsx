@@ -77,17 +77,19 @@ export function NumberField({
   max,
   step,
   disabled,
-  helpText
+  helpText,
+  compact = false
 }: BaseFieldProps & {
   field: PlanFieldType<number>;
   onValueChange: (value: number) => void;
   min?: number;
   max?: number;
   step?: number;
+  compact?: boolean;
 }) {
   const isLocked = field.ownership === 'locked';
   const isHighlighted = field.highlight && isHighlightActive(field.highlightUntil);
-  const inputClasses = `input transition-all ${isHighlighted ? highlightClasses : ''}`;
+  const inputClasses = `${compact ? 'input-compact' : 'input'} transition-all ${isHighlighted ? highlightClasses : ''}`;
 
   return (
     <FieldWrapper label={label} field={field} onLockToggle={onLockToggle} helpText={helpText}>
@@ -312,6 +314,80 @@ export function PhaseLengthsField(props: {
         ))}
         <div className="text-xs text-muted pt-2 border-t border-line">Total: {totalWeeks} weeks</div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Specialized component for deload ratio (e.g., "3:1", "4:1")
+ * Shows only the build weeks input with ":1" suffix
+ */
+export function DeloadRatioField(props: {
+  label: string;
+  field: PlanFieldType<string>;
+  onValueChange: (newValue: string) => void;
+  onLockToggle: () => void;
+  disabled?: boolean;
+  helpText?: string;
+}) {
+  const { label, field, onValueChange, onLockToggle, disabled, helpText } = props;
+  const fieldRef = useRef<HTMLDivElement>(null);
+  const previousHighlight = useRef(field.highlight);
+
+  useEffect(() => {
+    if (field.highlight && !previousHighlight.current && fieldRef.current) {
+      applyPulseAnimation(fieldRef.current);
+    }
+    previousHighlight.current = field.highlight;
+  }, [field.highlight]);
+
+  const isLocked = field.ownership === 'locked';
+  const isHighlighted = field.highlight && isHighlightActive(field.highlightUntil);
+  const badge = getOwnershipBadge(field.ownership);
+
+  // Parse current value (e.g., "3:1" -> 3)
+  const currentValue = field.value || '3:1';
+  const buildWeeks = parseInt(currentValue.split(':')[0] || '3', 10);
+
+  const handleChange = (weeks: number) => {
+    const newRatio = `${weeks}:1`;
+    onValueChange(newRatio);
+  };
+
+  return (
+    <div
+      ref={fieldRef}
+      className={`grid gap-1.5 transition-all duration-300 ${isHighlighted ? 'animate-pulse-subtle' : ''}`}
+    >
+      <div className="flex items-center justify-between">
+        <label className="text-sm font-medium flex items-center gap-2">
+          {label}
+          <span className={`text-xs px-1.5 py-0.5 rounded ${badge.className}`}>{badge.text}</span>
+        </label>
+        <button
+          onClick={onLockToggle}
+          className="p-1 hover:bg-panel rounded transition-colors"
+          title={isLocked ? 'Unlock field' : 'Lock field'}
+        >
+          {isLocked ? <Lock className="w-4 h-4 text-gray-500" /> : <Unlock className="w-4 h-4 text-gray-400" />}
+        </button>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <input
+          type="number"
+          className={`input-compact w-20 ${isHighlighted ? highlightClasses : ''}`}
+          value={buildWeeks}
+          onChange={(e) => handleChange(Number(e.target.value) || 3)}
+          min={2}
+          max={6}
+          disabled={isLocked || disabled}
+        />
+        <span className="text-sm text-muted font-medium">:1</span>
+        <span className="text-xs text-muted">(weeks build : weeks deload)</span>
+      </div>
+      
+      {helpText && <div className="text-xs text-muted">{helpText}</div>}
     </div>
   );
 }

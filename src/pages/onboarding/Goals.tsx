@@ -12,7 +12,7 @@ import {
   type FieldOwnership,
   SUGGESTED_FOCUS_AREAS
 } from '@/services/interview';
-import { NumberField, TextField } from '@/components/mesocycle/PlanField';
+import { NumberField, TextField, DeloadRatioField } from '@/components/mesocycle/PlanField';
 import { PeriodizationModelSelector } from '@/components/mesocycle/PeriodizationModelSelector';
 import { Lock, Unlock, RefreshCw, Plus, X } from 'lucide-react';
 import { byok } from '@/services/byok';
@@ -252,7 +252,7 @@ export default function Goals() {
         ) : null}
 
         {plan && (
-          <div className="grid gap-4 mt-4">
+          <div className="grid gap-3 mt-4">
             <NumberField
               label="Weeks Planned"
               field={adaptPlanField<number>(plan.weeksPlanned)}
@@ -260,7 +260,8 @@ export default function Goals() {
               onLockToggle={() => toggleLock('weeksPlanned')}
               min={4}
               max={16}
-              helpText="Total duration of your mesocycle (4-16 weeks)"
+              compact={true}
+              helpText="Total duration of your mesocycle"
             />
 
             <NumberField
@@ -270,7 +271,8 @@ export default function Goals() {
               onLockToggle={() => toggleLock('sessionsPerWeek')}
               min={2}
               max={21}
-              helpText="How many training sessions you can commit to weekly"
+              compact={true}
+              helpText="Training sessions per week"
             />
 
             <FocusAreasField
@@ -286,13 +288,12 @@ export default function Goals() {
               onToggleLock={() => toggleLock('sessionDistribution')}
             />
 
-            <TextField
+            <DeloadRatioField
               label="Build-to-Deload Ratio"
               field={adaptPlanField<string>(plan.buildToDeloadRatio)}
               onValueChange={(v) => updateField('buildToDeloadRatio', v)}
               onLockToggle={() => toggleLock('buildToDeloadRatio')}
-              placeholder="e.g., 3:1, 4:1"
-              helpText="Ratio of building weeks to deload weeks (e.g., 3:1 = 3 weeks build, 1 week deload)"
+              helpText="E.g., 3:1 = 3 weeks building, 1 week deload"
             />
 
             <ProgressionTypeField
@@ -315,8 +316,7 @@ export default function Goals() {
                 field={adaptPlanField<string>(plan.startingWeek)}
                 onValueChange={(v) => updateField('startingWeek', v)}
                 onLockToggle={() => toggleLock('startingWeek')}
-                placeholder="YYYY-MM-DD"
-                helpText="When you want to start your mesocycle"
+                helpText="When to start your mesocycle"
               />
             )}
           </div>

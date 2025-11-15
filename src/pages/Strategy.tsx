@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { loadPlan, loadProfile, reviewCurrentStrategy, type StrategyReview } from '@/services/coach';
 import type { Plan, EnhancedPlan, PeriodizationModel, Profile } from '@/schemas/product';
 import { put, get } from '@/services/storage';
-import { NumberField, TextField } from '@/components/mesocycle/PlanField';
+import { NumberField, DeloadRatioField } from '@/components/mesocycle/PlanField';
 import { PeriodizationModelSelector } from '@/components/mesocycle/PeriodizationModelSelector';
 import { createPlanField } from '@/services/planEngine';
 import { AlertCircle, CheckCircle2, Lightbulb, RefreshCw } from 'lucide-react';
@@ -262,7 +262,7 @@ export default function Strategy() {
         {/* Left Column: Core Plan Fields */}
         <div className="card p-4">
           <h2 className="font-semibold mb-4">Mesocycle Configuration</h2>
-          <div className="grid gap-4">
+          <div className="grid gap-3">
             {plan.weeksPlanned && (
               <NumberField
                 label="Weeks Planned"
@@ -271,6 +271,7 @@ export default function Strategy() {
                 onLockToggle={() => toggleLock('weeksPlanned')}
                 min={4}
                 max={20}
+                compact={true}
                 helpText="Total duration of your training mesocycle"
               />
             )}
@@ -283,17 +284,17 @@ export default function Strategy() {
                 onLockToggle={() => toggleLock('sessionsPerWeek')}
                 min={2}
                 max={14}
+                compact={true}
                 helpText="Training frequency per week"
               />
             )}
 
             {plan.buildToDeloadRatio && (
-              <TextField
+              <DeloadRatioField
                 label="Build-to-Deload Ratio"
                 field={plan.buildToDeloadRatio}
                 onValueChange={(v) => updateField('buildToDeloadRatio', v)}
                 onLockToggle={() => toggleLock('buildToDeloadRatio')}
-                placeholder="e.g., 3:1, 4:1"
                 helpText="Ratio of building weeks to recovery weeks"
               />
             )}
