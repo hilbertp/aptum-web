@@ -37,6 +37,11 @@ Coaches’ Perceptions of Common Planning Concepts Within Training Theory: An In
 Reverse Periodization for Improving Sports Performance: A Systematic Review (PMID: 35445953)
 Addressing the Confusion within Periodization Research (PMID: 33467283)
 The Effect of Periodization on Training Program Adherence (PMID: 34948583)
+Benefits and Limitations of Block Periodized Training Approaches to Athletes' Preparation: A Review (PMID: 26573916)
+Block periodization of endurance training - a systematic review and meta-analysis (PMID: 31802956)
+Muscle Daily Undulating Periodization for Strength and Body Composition: The Proposal of a New Model (PMID: 36895841)
+The Effect of Block Versus Daily Undulating Periodization on Strength and Performance in Adolescent Football Players (PMID: 30569761)
+Effects of Periodization on Strength and Muscle Hypertrophy in Volume-Equated Resistance Training Programs: A Systematic Review and Meta-analysis (PMID: 35044672)
 1.2. Autoregulation using RPE and RIR
 Concurrent validity and reliability of the session rating of perceived exertion scale among high-trained rower during training sessions (PMID: 40646576)
 Gauging proximity to failure in the bench press: generalized velocity-based vs. %1RM-repetitions-to-failure approaches (PMID: 40133968)
