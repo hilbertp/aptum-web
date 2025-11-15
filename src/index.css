@@ -58,3 +58,31 @@ body {
 .animate-pulse-once {
   animation: pulse-once 0.6s ease-in-out;
 }
+
+/* Mesocycle field animations */
+@keyframes pulse-subtle {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 0.6s ease-in-out;
+}
+
+/* Field ownership states */
+.field-system {
+  @apply bg-blue-50 border-blue-200;
+}
+
+.field-athlete {
+  @apply bg-green-50 border-green-200;
+}
+
+.field-locked {
+  @apply bg-gray-100 border-gray-300;
+}
+
+/* Field highlight state (15s duration) */
+.field-highlight {
+  @apply ring-2 ring-yellow-300 ring-opacity-50 bg-yellow-50;
+}

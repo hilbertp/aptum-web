@@ -19,7 +19,8 @@
       "@/services/*": ["src/services/*"],
       "@/stores/*": ["src/stores/*"],
       "@/schemas/*": ["src/schemas/*"],
-      "@/content/*": ["src/content/*"]
+      "@/content/*": ["src/content/*"],
+      "@/utils/*": ["src/utils/*"]
     }
   },
   "include": ["src"]
