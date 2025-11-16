@@ -9,7 +9,7 @@ Scaffold
 - Zustand state management
 - Zod schemas for product contracts (Plan / Session / Recovery / Blocker)
 - IndexedDB persistence wrapper and export/import pipeline
-- DriveSyncService skeleton for Google Drive App Folder replication
+- **Google Drive API v3** - Full integration with automatic sync (✅ implemented 2025-11-16)
 - PWA setup (vite-plugin-pwa)
 
 Getting started
@@ -23,7 +23,15 @@ Environment
   - VITE_GOOGLE_DRIVE_SCOPES – default: https://www.googleapis.com/auth/drive.appdata
 
 Docs
-- See /docs for PRD/ASA/TIG summaries and schemas
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Current development status, architecture, and guidelines
+- **[CHANGELOG.md](./CHANGELOG.md)** - Detailed history of changes and updates
+- **/docs** - PRD/ASA/TIG summaries and schemas
+
+Recent Updates (2025-11-16)
+- ✅ Google Drive sync fully implemented with automatic backup
+- ✅ Returning customer login flow with data restoration
+- ✅ Privacy-focused using `appDataFolder` scope
+- See CHANGELOG.md for complete details
 
 License
 Apache-2.0
