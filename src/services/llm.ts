@@ -2,7 +2,7 @@ import { byok } from './byok';
 
 // Fixed embedding model to match the prebuilt KB index
 const EMBED_MODEL = 'text-embedding-3-small';
-const CHAT_MODEL = 'gpt-5';
+const CHAT_MODEL = 'gpt-4o';
 
 export async function embed(inputs: string[]): Promise<number[][]> {
   const { apiKey } = byok.get();
@@ -45,7 +45,7 @@ export async function chatJSON(system: string, user: string): Promise<any> {
         { role: 'system', content: system },
         { role: 'user', content: user }
       ],
-      temperature: 0.2
+      temperature: 1
     })
   });
   if (!res.ok) {

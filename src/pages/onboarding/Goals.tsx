@@ -484,8 +484,12 @@ Please review these changes and let me know if they make sense for my goals.`;
                     className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
                     <option value="linear-periodization">Linear Periodization</option>
+                    <option value="reverse-linear-periodization">Reverse Linear Periodization</option>
                     <option value="block-periodization">Block Periodization</option>
-                    <option value="undulating-periodization">Daily Undulating Periodization</option>
+                    <option value="daily-undulating-periodization">Daily Undulating Periodization</option>
+                    <option value="weekly-undulating-periodization">Weekly Undulating Periodization</option>
+                    <option value="conjugate-method">Conjugate Method</option>
+                    <option value="concurrent-periodization">Concurrent Periodization</option>
                   </select>
                 )}
               </div>
