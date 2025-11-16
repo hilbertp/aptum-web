@@ -348,7 +348,7 @@ Please review these changes and let me know if they make sense for my goals.`;
             <section className="mb-8">
               <h2 className="text-lg font-bold text-gray-900 mb-1">Prioritize Training Focus</h2>
               <p className="text-sm text-gray-600 mb-4">
-                Select up to THREE training types in order of importance.
+                Select up to three training types in order of importance.
               </p>
               
               <div className="space-y-3">
