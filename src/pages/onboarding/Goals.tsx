@@ -351,7 +351,7 @@ Please review these changes and let me know if they make sense for my goals.`;
                   <select 
                     value={priority1} 
                     onChange={(e) => setPriority1(e.target.value as FocusArea)}
-                    className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-aptum-blue/40"
                   >
                     {FOCUS_AREAS.map(area => (
                       <option key={area} value={area}>{area || 'Select...'}</option>
@@ -364,7 +364,7 @@ Please review these changes and let me know if they make sense for my goals.`;
                   <select 
                     value={priority2} 
                     onChange={(e) => setPriority2(e.target.value as FocusArea)}
-                    className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-aptum-blue/40"
                   >
                     {FOCUS_AREAS.map(area => (
                       <option key={area} value={area}>{area || 'Select...'}</option>
@@ -377,7 +377,7 @@ Please review these changes and let me know if they make sense for my goals.`;
                   <select 
                     value={priority3} 
                     onChange={(e) => setPriority3(e.target.value as FocusArea)}
-                    className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-aptum-blue/40"
                   >
                     {FOCUS_AREAS.map(area => (
                       <option key={area} value={area}>{area || 'Select...'}</option>
@@ -416,7 +416,7 @@ Please review these changes and let me know if they make sense for my goals.`;
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => updateDistribution(priority, -1)}
-                        className="w-9 h-9 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-colors"
+                        className="w-9 h-9 rounded-lg bg-aptum-blue hover:bg-aptum-blue/90 text-white flex items-center justify-center transition-colors"
                       >
                         <Minus className="w-4 h-4" />
                       </button>
@@ -425,7 +425,7 @@ Please review these changes and let me know if they make sense for my goals.`;
                       </span>
                       <button
                         onClick={() => updateDistribution(priority, 1)}
-                        className="w-9 h-9 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-colors"
+                        className="w-9 h-9 rounded-lg bg-aptum-blue hover:bg-aptum-blue/90 text-white flex items-center justify-center transition-colors"
                       >
                         <Plus className="w-4 h-4" />
                       </button>
@@ -445,7 +445,7 @@ Please review these changes and let me know if they make sense for my goals.`;
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => updateDeloadRatio(-1)}
-                    className="w-9 h-9 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-colors"
+                    className="w-9 h-9 rounded-lg bg-aptum-blue hover:bg-aptum-blue/90 text-white flex items-center justify-center transition-colors"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
@@ -454,7 +454,7 @@ Please review these changes and let me know if they make sense for my goals.`;
                   </span>
                   <button
                     onClick={() => updateDeloadRatio(1)}
-                    className="w-9 h-9 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-colors"
+                    className="w-9 h-9 rounded-lg bg-aptum-blue hover:bg-aptum-blue/90 text-white flex items-center justify-center transition-colors"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -471,7 +471,7 @@ Please review these changes and let me know if they make sense for my goals.`;
                 <select 
                   value={progressionType}
                   onChange={(e) => setProgressionType(e.target.value as 'linear' | 'periodized')}
-                  className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-aptum-blue/40"
                 >
                   <option value="linear">Linear</option>
                   <option value="periodized">Periodized</option>
@@ -481,7 +481,7 @@ Please review these changes and let me know if they make sense for my goals.`;
                   <select 
                     value={periodizationModel}
                     onChange={(e) => setPeriodizationModel(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-aptum-blue/40"
                   >
                     <option value="linear-periodization">Linear Periodization</option>
                     <option value="reverse-linear-periodization">Reverse Linear Periodization</option>
@@ -514,7 +514,7 @@ Please review these changes and let me know if they make sense for my goals.`;
                 <button
                   onClick={handleContinue}
                   disabled={!canContinue}
-                  className="flex-1 px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-6 py-3 bg-aptum-blue text-white rounded-lg font-medium hover:bg-aptum-blue/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Continue
                 </button>
