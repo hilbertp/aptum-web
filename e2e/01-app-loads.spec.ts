@@ -13,9 +13,10 @@ test.describe('Test 1: App loads initial page', () => {
     // Step 2: Wait for the initial screen to render
     await page.waitForLoadState('networkidle');
 
-    // Expected 1-3: Welcome screen with hero text and Begin button
+    // Expected 1-3: Welcome screen with hero text and sign-in/continue buttons
     await expect(page.locator('h1')).toContainText('Welcome to Aptum');
-    await expect(page.locator('button', { hasText: 'Begin' })).toBeVisible();
+    await expect(page.locator('button', { hasText: 'Sign in with Google' })).toBeVisible();
+    await expect(page.locator('button', { hasText: 'Continue without sign-in' })).toBeVisible();
 
     // Expected 4: No error screens or blocking dialogs
     const errorText = page.locator('text=/error|fail|crash/i');

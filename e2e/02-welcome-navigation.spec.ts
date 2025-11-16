@@ -11,8 +11,8 @@ test.describe('Test 2: Welcome screen navigation flow', () => {
     await page.goto('/onboarding/welcome');
     await expect(page.locator('h1')).toContainText('Welcome to Aptum');
 
-    // Step 2: Click the Begin button
-    await page.locator('button', { hasText: 'Begin' }).click();
+    // Step 2: Click the Continue without sign-in button
+    await page.locator('button', { hasText: 'Continue without sign-in' }).click();
 
     // Expected 1: After clicking Begin, the profile screen is displayed
     await page.waitForURL('**/onboarding/profile');
