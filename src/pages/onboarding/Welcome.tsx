@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { onboardingCopy } from '@/content/onboarding';
 import { useAuth } from '@/stores/auth';
 import { signInWithGoogle } from '@/services/auth';
@@ -12,14 +12,7 @@ export default function Welcome() {
   const [checkingData, setCheckingData] = useState(false);
   const [restoreError, setRestoreError] = useState<string | null>(null);
 
-  // Check for existing data when user signs in
-  useEffect(() => {
-    if (auth.status === 'signed_in' && !checkingData) {
-      handleReturningUser();
-    }
-  }, [auth.status]);
-
-  async function handleReturningUser() {
+  const handleReturningUser = useCallback(async () => {
     setCheckingData(true);
     setRestoreError(null);
 
@@ -47,7 +40,14 @@ export default function Welcome() {
       setRestoreError('Failed to check for existing data. Please try again.');
       setCheckingData(false);
     }
-  }
+  }, [nav]);
+
+  // Check for existing data when user signs in
+  useEffect(() => {
+    if (auth.status === 'signed_in' && !checkingData) {
+      handleReturningUser();
+    }
+  }, [auth.status, checkingData, handleReturningUser]);
 
   const isSigningIn = auth.status === 'signing_in';
   const isCheckingOrSyncing = checkingData || driveSync.status === 'syncing';
