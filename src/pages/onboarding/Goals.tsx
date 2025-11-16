@@ -13,6 +13,7 @@ import {
   SUGGESTED_FOCUS_AREAS
 } from '@/services/interview';
 import { byok } from '@/services/byok';
+import { loadProfile, type Profile } from '@/services/coach';
 
 type FocusArea = '' | 'Strength' | 'Hypertrophy' | 'Power / Explosiveness' | 'Endurance (steady)' | 'HIIT / Conditioning' | 'Mobility' | 'Sport Performance' | 'Fat Loss' | 'Longevity / Health';
 
@@ -45,6 +46,7 @@ export default function Goals() {
   const [thinking, setThinking] = useState(false);
   const [state, setState] = useState<GoalsInterviewState>({ messages: [], slots: {}, planRecommendation: undefined });
   const [input, setInput] = useState('');
+  const [profile, setProfile] = useState<Profile | undefined>();
   const listRef = useRef<HTMLDivElement>(null);
   const hasApiKey = !!byok.get().apiKey;
   
@@ -69,11 +71,15 @@ export default function Goals() {
     return sum + (distribution[priority] || 0);
   }, 0);
   
-  // Load AI interview state
+  // Load AI interview state and profile
   useEffect(() => {
     (async () => {
-      const s = await loadGoalsInterview();
+      const [s, p] = await Promise.all([
+        loadGoalsInterview(),
+        loadProfile()
+      ]);
       setState(s);
+      setProfile(p);
       setLoading(false);
       
       // Initialize from AI recommendations if available
@@ -165,7 +171,7 @@ export default function Goals() {
     setInput('');
     setThinking(true);
     try {
-      const next = await askGoals(state, text);
+      const next = await askGoals(state, text, profile);
       setState(next);
       if (next.planRecommendation) {
         initializeFromRecommendations(next.planRecommendation);
@@ -204,7 +210,7 @@ Please review these changes and let me know if they make sense for my goals.`;
     }));
     
     try {
-      const next = await askGoals(state, reviewMessage);
+      const next = await askGoals(state, reviewMessage, profile);
       setState(next);
       setHasUserChanges(false);
     } catch (e: any) {

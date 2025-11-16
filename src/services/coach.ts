@@ -4,6 +4,9 @@ import { search } from './retrieve';
 import { chatJSON } from './llm';
 import { MODELS } from './periodization';
 
+// Re-export Profile type for use in other services
+export type { Profile };
+
 export type InterviewAnswers = {
   primaryGoal: 'hypertrophy' | 'strength' | 'fat loss' | 'endurance' | 'mixed';
   daysPerWeek: number;

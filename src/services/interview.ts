@@ -1,6 +1,7 @@
 import { chatJSON } from './llm';
 import { search as kbSearch } from './retrieve';
 import { get, put } from './storage';
+import type { Profile } from './coach';
 
 export type ChatMsg = { role: 'user' | 'assistant'; content: string };
 export type GoalsSlots = {
@@ -105,7 +106,7 @@ export function canUpdateField(field: PlanField): boolean {
   return field.ownership === 'system-owned';
 }
 
-function systemPrompt(kbSnippets: string[], planRecommendation: PlanRecommendation | undefined, isInitial: boolean) {
+function systemPrompt(kbSnippets: string[], planRecommendation: PlanRecommendation | undefined, isInitial: boolean, profile?: Profile) {
   const kb = kbSnippets.length
     ? `KB context (for coach reference; do not quote verbatim):\n${kbSnippets
         .map((t, i) => `[${i + 1}] ${t}`)
@@ -117,6 +118,24 @@ function systemPrompt(kbSnippets: string[], planRecommendation: PlanRecommendati
     'Endurance (steady)', 'HIIT / Conditioning', 'Mobility', 
     'Sport Performance', 'Fat Loss', 'Longevity / Health'
   ];
+
+  const profileContext = profile ? `
+ATHLETE PROFILE:
+${JSON.stringify(profile, null, 2)}
+
+USE THIS PROFILE DATA TO TAILOR RECOMMENDATIONS:
+- Lifting Experience (${profile.liftingExperience || 'not specified'}): Determines progression complexity
+  * novice: Simple linear progression, focus on technique
+  * intermediate: Can handle periodization, more volume
+  * advanced/expert: Complex periodization, higher intensities
+- Fitness Level (${profile.fitnessLevel || 'not specified'}): Affects conditioning capacity and recovery
+- Age (${profile.ageYears || 'not specified'}): Older athletes need more recovery, adjust volume accordingly
+- Gender (${profile.gender || 'not specified'}): May affect recovery capacity and hormone optimization
+- Endurance Background: ${profile.endurance || 'not specified'}
+
+ALWAYS reference the athlete's profile when making recommendations. For example:
+"Given your ${profile.liftingExperience} experience level..." or "As a ${profile.fitnessLevel} athlete..."
+` : '\nATHLETE PROFILE: Not available yet. Collect basic info during interview if needed.';
 
   const planInstructions = planRecommendation ? `
 PLAN RECOMMENDATIONS:
@@ -163,6 +182,7 @@ ${JSON.stringify(planRecommendation, null, 2)}
 
   return [
     'You are Aptum Coach, interviewing an athlete to design a mesocycle.',
+    profileContext,
     'Interview via chat. Ask ONE concise question at a time to fill these slots:',
     '- primaryGoal: hypertrophy | strength | fat loss | endurance | mixed',
     '- daysPerWeek: integer (2..7, training days available per week)',
@@ -177,7 +197,7 @@ ${JSON.stringify(planRecommendation, null, 2)}
   ].join('\n');
 }
 
-export async function askGoals(state: GoalsInterviewState, userText: string): Promise<GoalsInterviewState> {
+export async function askGoals(state: GoalsInterviewState, userText: string, profile?: Profile): Promise<GoalsInterviewState> {
   // Retrieve KB based on the latest user message
   let snippets: string[] = [];
   try {
@@ -197,7 +217,7 @@ export async function askGoals(state: GoalsInterviewState, userText: string): Pr
     .concat([`USER: ${userText}`])
     .join('\n');
 
-  const system = systemPrompt(snippets, hasEnoughSlots ? planRec : undefined, isInitialRecommendation);
+  const system = systemPrompt(snippets, hasEnoughSlots ? planRec : undefined, isInitialRecommendation, profile);
   const user = [
     'Transcript so far (most recent last):',
     transcript,
@@ -246,7 +266,7 @@ export function slotsComplete(slots: GoalsSlots) {
   return !!(slots.primaryGoal && slots.daysPerWeek && slots.equipment);
 }
 
-export async function rebuildPlan(state: GoalsInterviewState): Promise<GoalsInterviewState> {
+export async function rebuildPlan(state: GoalsInterviewState, profile?: Profile): Promise<GoalsInterviewState> {
   if (!state.planRecommendation) return state;
 
   // Retrieve KB based on the goal
@@ -259,7 +279,7 @@ export async function rebuildPlan(state: GoalsInterviewState): Promise<GoalsInte
     // ignore retrieval failures
   }
 
-  const system = systemPrompt(snippets, state.planRecommendation, true);
+  const system = systemPrompt(snippets, state.planRecommendation, true, profile);
   const user = [
     'The athlete has requested to rebuild the plan.',
     'Current interview slots:',
