@@ -49,7 +49,7 @@ export default function Connect() {
 
       setTestStatus('success');
       // Save the key if test succeeds
-      byok.set({ apiKey: keyToTest });
+      await byok.set({ apiKey: keyToTest });
     } catch (error) {
       setTestStatus('error');
       setTestError(error instanceof Error ? error.message : 'Failed to verify API key');
@@ -137,7 +137,7 @@ export default function Connect() {
           )}
         </div>
         <div className="flex gap-2">
-          <button className="btn btn-primary" onClick={() => { const k = apiKey.trim() || savedKey; if (k) byok.set({ apiKey: k }); nav('/onboarding/goals'); }}>Continue</button>
+          <button className="btn btn-primary" onClick={async () => { const k = apiKey.trim() || savedKey; if (k) await byok.set({ apiKey: k }); nav('/onboarding/goals'); }}>Continue</button>
           <button className="btn" onClick={() => nav('/onboarding/profile')}>Back</button>
         </div>
       </div>

@@ -131,7 +131,7 @@ export default function Onboarding() {
           </label>
           {existingKey && !apiKey && (<div className="text-xs text-muted">Saved: {mask(existingKey)}</div>)}
           <div className="flex gap-2">
-            <button className="btn btn-primary" disabled={savingKey} onClick={() => { setSavingKey(true); const k = (apiKey && apiKey.trim().length > 0) ? apiKey.trim() : existingKey; if (k) byok.set({ apiKey: k }); setSavingKey(false); setStep(4); }}>Continue</button>
+            <button className="btn btn-primary" disabled={savingKey} onClick={async () => { setSavingKey(true); const k = (apiKey && apiKey.trim().length > 0) ? apiKey.trim() : existingKey; if (k) await byok.set({ apiKey: k }); setSavingKey(false); setStep(4); }}>Continue</button>
             <button className="btn" onClick={() => setStep(2)}>Back</button>
           </div>
         </div>
@@ -167,7 +167,7 @@ export default function Onboarding() {
           <div className="flex gap-2">
             <button className="btn btn-primary" disabled={makingPlan} onClick={async () => {
               setMakingPlan(true);
-              if (apiKey) byok.set({ apiKey });
+              if (apiKey) await byok.set({ apiKey });
               const plan = await generatePlanFromInterview(profile, { primaryGoal: goal, daysPerWeek: days, equipment, constraints });
               setMakingPlan(false);
               if (plan) setStep(5);

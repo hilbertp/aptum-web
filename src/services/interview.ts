@@ -2,6 +2,7 @@ import { chatJSON } from './llm';
 import { search as kbSearch } from './retrieve';
 import { get, put } from './storage';
 import type { Profile } from './coach';
+import { driveSync } from './driveSync';
 
 export type ChatMsg = { role: 'user' | 'assistant'; content: string };
 export type GoalsSlots = {
@@ -100,6 +101,14 @@ export async function loadGoalsInterview(): Promise<GoalsInterviewState> {
 
 export async function saveGoalsInterview(state: GoalsInterviewState) {
   await put('conversation', STORE_KEY, state);
+  // Sync to Drive if authenticated
+  if (driveSync.hasToken) {
+    try {
+      await driveSync.uploadAllData();
+    } catch (error) {
+      console.error('Failed to sync interview to Drive:', error);
+    }
+  }
 }
 
 export function canUpdateField(field: PlanField): boolean {

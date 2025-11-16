@@ -3,6 +3,7 @@ import type { Plan, Profile, EnhancedPlan, PeriodizationModel } from '@/schemas/
 import { search } from './retrieve';
 import { chatJSON } from './llm';
 import { MODELS } from './periodization';
+import { driveSync } from './driveSync';
 
 // Re-export Profile type for use in other services
 export type { Profile };
@@ -16,6 +17,14 @@ export type InterviewAnswers = {
 
 export async function saveProfile(p: Profile) {
   await put('profile', 'me', p);
+  // Sync to Drive if authenticated
+  if (driveSync.hasToken) {
+    try {
+      await driveSync.uploadAllData();
+    } catch (error) {
+      console.error('Failed to sync profile to Drive:', error);
+    }
+  }
 }
 
 export async function loadProfile(): Promise<Profile | undefined> {
@@ -75,6 +84,16 @@ Instructions:
   await put('plan', 'current', plan);
   // Save a revision copy
   await put('planRevisions', Date.now(), { id: Date.now(), plan });
+  
+  // Sync to Drive if authenticated
+  if (driveSync.hasToken) {
+    try {
+      await driveSync.uploadAllData();
+    } catch (error) {
+      console.error('Failed to sync plan to Drive:', error);
+    }
+  }
+  
   return plan;
 }
 

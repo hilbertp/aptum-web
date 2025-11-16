@@ -31,8 +31,8 @@ export default function Settings() {
     }
   };
 
-  const save = () => {
-    byok.set({ apiKey });
+  const save = async () => {
+    await byok.set({ apiKey });
     setStatus('Saved.');
     setTimeout(() => setStatus(null), 2500);
   };
@@ -46,7 +46,7 @@ export default function Settings() {
       // Save the typed key first (if provided), otherwise use existing saved key
       const effectiveKey = (apiKey && apiKey.trim().length > 0) ? apiKey.trim() : savedKey;
       if (!effectiveKey) throw new Error('No API key');
-      if (effectiveKey !== savedKey) byok.set({ apiKey: effectiveKey });
+      if (effectiveKey !== savedKey) await byok.set({ apiKey: effectiveKey });
       const vec = await embed(['hello aptum']);
       if (Array.isArray(vec) && vec[0]?.length) {
         setStatus('Connection OK');
@@ -88,7 +88,7 @@ export default function Settings() {
           {/* Intentionally no embedding model UI. It is fixed and configured at build time. */}
           <div className="flex gap-2 mt-2">
             <button className="btn" onClick={save} type="button">Save</button>
-            <button className="btn" onClick={async () => { byok.set({ apiKey }); await testConnection(); }} disabled={testing} type="button">{testing ? 'Testing…' : 'Test Connection'}</button>
+            <button className="btn" onClick={async () => { await byok.set({ apiKey }); await testConnection(); }} disabled={testing} type="button">{testing ? 'Testing…' : 'Test Connection'}</button>
           </div>
           {status && <div className="text-sm text-muted">{status}</div>}
         </div>

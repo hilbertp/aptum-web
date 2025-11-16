@@ -1,3 +1,5 @@
+import { driveSync } from './driveSync';
+
 export type ByokConfig = {
   apiKey: string | null;
 };
@@ -20,10 +22,19 @@ export const byok = {
     const apiKey = (ls?.getItem(LS_KEYS.apiKey) || null);
     return { apiKey };
   },
-  set(cfg: Partial<ByokConfig>): void {
+  async set(cfg: Partial<ByokConfig>): Promise<void> {
     const ls = safeLocalStorage();
     if (!ls) return;
     if (cfg.apiKey !== undefined) ls.setItem(LS_KEYS.apiKey, cfg.apiKey || '');
+    
+    // Sync to Drive if authenticated
+    if (driveSync.hasToken) {
+      try {
+        await driveSync.uploadAllData();
+      } catch (error) {
+        console.error('Failed to sync API key to Drive:', error);
+      }
+    }
   },
   clear(): void {
     const ls = safeLocalStorage();
