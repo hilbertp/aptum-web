@@ -46,23 +46,23 @@ function FieldWrapper({
   return (
     <div
       ref={fieldRef}
-      className={`grid gap-1 transition-all duration-300 ${isHighlighted ? 'animate-pulse-subtle' : ''}`}
+      className={`space-y-1.5 transition-all duration-300 ${isHighlighted ? 'animate-pulse-subtle' : ''}`}
     >
       <div className="flex items-center justify-between">
-        <label className="text-xs font-medium flex items-center gap-1.5">
-          {label}
-          <span className={`text-[10px] px-1 py-0.5 rounded ${badge.className}`}>{badge.text}</span>
-        </label>
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-900">{label}</label>
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${badge.className}`}>{badge.text}</span>
+        </div>
         <button
           onClick={onLockToggle}
-          className="p-0.5 hover:bg-panel rounded transition-colors"
+          className="p-1 hover:bg-gray-100 rounded transition-colors"
           title={isLocked ? 'Unlock field' : 'Lock field'}
         >
-          {isLocked ? <Lock className="w-3.5 h-3.5 text-gray-500" /> : <Unlock className="w-3.5 h-3.5 text-gray-400" />}
+          {isLocked ? <Lock className="w-4 h-4 text-gray-400" /> : <Unlock className="w-4 h-4 text-gray-300" />}
         </button>
       </div>
       {children}
-      {helpText && <div className="text-[10px] text-muted mt-0.5">{helpText}</div>}
+      {helpText && <div className="text-xs text-gray-500">{helpText}</div>}
     </div>
   );
 }

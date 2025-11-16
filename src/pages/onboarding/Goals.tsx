@@ -228,35 +228,38 @@ export default function Goals() {
       </div>
 
       {/* Plan Recommendation Panel */}
-      <div className="card p-3">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="font-semibold text-sm">Plan Recommendation</h2>
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-base font-semibold text-gray-900">Plan Recommendation</h2>
+            <p className="text-xs text-gray-500 mt-0.5">Configure your training mesocycle</p>
+          </div>
           {hasApiKey && canContinue && (
             <button 
-              className="flex items-center gap-1 px-2 py-1 text-xs bg-panel hover:bg-gray-200 rounded border border-line transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition-colors"
               onClick={handleRebuild}
               disabled={rebuilding}
             >
-              <RefreshCw className={`w-3 h-3 ${rebuilding ? 'animate-spin' : ''}`} />
-              {rebuilding ? 'Rebuilding...' : 'Rebuild'}
+              <RefreshCw className={`w-4 h-4 ${rebuilding ? 'animate-spin' : ''}`} />
+              {rebuilding ? 'Rebuilding...' : 'Rebuild Plan'}
             </button>
           )}
         </div>
 
         {!hasApiKey ? (
-          <div className="text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-200 mb-2">
-            ⚠️ API key not configured. The plan scaffold below can be edited manually, but AI recommendations require an OpenAI API key.
+          <div className="text-sm text-amber-700 bg-amber-50 p-3 rounded-lg border border-amber-200 mb-4">
+            ⚠️ <span className="font-medium">API key not configured.</span> You can edit the plan manually, but AI recommendations require an OpenAI API key.
           </div>
         ) : !canContinue ? (
-          <div className="text-xs text-muted mb-2">Complete the interview to get AI-powered plan recommendations.</div>
+          <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg mb-4">Complete the interview to get AI-powered plan recommendations.</div>
         ) : null}
 
         {plan && (
-          <div className="space-y-3 mt-3">
+          <div className="space-y-6">
             {/* Basic Settings - 3 columns for compact layout */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-4">
               <NumberField
-                label="Weeks"
+                label="Weeks Planned"
                 field={adaptPlanField<number>(plan.weeksPlanned)}
                 onValueChange={(v) => updateField('weeksPlanned', v)}
                 onLockToggle={() => toggleLock('weeksPlanned')}
@@ -266,7 +269,7 @@ export default function Goals() {
               />
 
               <NumberField
-                label="Sessions/Week"
+                label="Sessions Per Week"
                 field={adaptPlanField<number>(plan.sessionsPerWeek)}
                 onValueChange={(v) => updateField('sessionsPerWeek', v)}
                 onLockToggle={() => toggleLock('sessionsPerWeek')}
@@ -276,12 +279,14 @@ export default function Goals() {
               />
 
               <DeloadRatioField
-                label="Deload Ratio"
+                label="Build-to-Deload Ratio"
                 field={adaptPlanField<string>(plan.buildToDeloadRatio)}
                 onValueChange={(v) => updateField('buildToDeloadRatio', v)}
                 onLockToggle={() => toggleLock('buildToDeloadRatio')}
               />
             </div>
+
+            <div className="border-t border-gray-100"></div>
 
             <FocusAreasField
               field={plan.focusAreas}
@@ -289,12 +294,16 @@ export default function Goals() {
               onToggleLock={() => toggleLock('focusAreas')}
             />
 
-            <SessionDistributionField
-              field={plan.sessionDistribution}
-              focusAreas={plan.focusAreas.value || []}
-              onUpdate={(v) => updateField('sessionDistribution', v)}
-              onToggleLock={() => toggleLock('sessionDistribution')}
-            />
+            {(plan.focusAreas.value || []).length > 0 && (
+              <SessionDistributionField
+                field={plan.sessionDistribution}
+                focusAreas={plan.focusAreas.value || []}
+                onUpdate={(v) => updateField('sessionDistribution', v)}
+                onToggleLock={() => toggleLock('sessionDistribution')}
+              />
+            )}
+
+            <div className="border-t border-gray-100"></div>
 
             <ProgressionTypeField
               field={plan.progressionType}
@@ -321,7 +330,7 @@ export default function Goals() {
           </div>
         )}
 
-        <div className="flex gap-2 mt-3 pt-3 border-t border-line">
+        <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200">
           <button 
             className="btn btn-primary" 
             disabled={!canContinue} 
@@ -372,93 +381,98 @@ function FocusAreasField({ field, onUpdate, onToggleLock }: {
   }
 
   return (
-    <div className={`grid gap-1 transition-all duration-300 ${field.highlight ? 'animate-pulse-once' : ''}`}>
+    <div className={`space-y-2 transition-all duration-300 ${field.highlight ? 'animate-pulse-once' : ''}`}>
       <div className="flex items-center justify-between">
-        <label className="text-xs font-medium flex items-center gap-1.5">
-          Focus Areas (1-3)
-          <span className={`text-[10px] px-1 py-0.5 rounded ${
-            isLocked ? 'bg-gray-200 text-gray-700' :
-            isSystemOwned ? 'bg-blue-100 text-blue-700' :
-            'bg-green-100 text-green-700'
+        <div>
+          <label className="text-sm font-medium text-gray-900">Focus Areas</label>
+          <div className="text-xs text-gray-500 mt-0.5">Select 1-3 training goals</div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+            isLocked ? 'bg-gray-100 text-gray-600' :
+            isSystemOwned ? 'bg-blue-50 text-blue-600' :
+            'bg-green-50 text-green-600'
           }`}>
             {isLocked ? 'Locked' : isSystemOwned ? 'AI' : 'You'}
           </span>
-        </label>
-        <button
-          onClick={onToggleLock}
-          className="p-0.5 hover:bg-panel rounded transition-colors"
-        >
-          {isLocked ? <Lock className="w-3.5 h-3.5 text-gray-500" /> : <Unlock className="w-3.5 h-3.5 text-gray-400" />}
-        </button>
+          <button
+            onClick={onToggleLock}
+            className="p-1 hover:bg-gray-100 rounded transition-colors"
+          >
+            {isLocked ? <Lock className="w-4 h-4 text-gray-400" /> : <Unlock className="w-4 h-4 text-gray-300" />}
+          </button>
+        </div>
       </div>
 
-      {/* Suggested Focus Areas - Compact Grid */}
-      <div className={`p-2 rounded border ${field.highlight ? 'ring-2 ring-aptum-blue ring-opacity-50 border-aptum-blue' : 'border-line'}`}>
-        <div className="text-[10px] text-muted mb-1">Suggested:</div>
-        <div className="grid grid-cols-3 gap-1.5">
-          {SUGGESTED_FOCUS_AREAS.map((area) => {
-            const isSelected = selected.includes(area);
-            return (
-              <button
-                key={area}
-                onClick={() => toggleArea(area)}
-                disabled={selected.length >= 3 && !isSelected}
-                className={`text-xs px-2 py-1 rounded transition-colors ${
-                  isSelected
-                    ? 'bg-aptum-blue text-white'
-                    : selected.length >= 3
-                    ? 'bg-panel text-gray-400 cursor-not-allowed'
-                    : 'bg-panel hover:bg-aptum-blue/10 hover:text-aptum-blue border border-line'
-                }`}
-              >
-                {area}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Custom Focus Area Input */}
-        {selected.length < 3 && (
-          <div className="mt-2 pt-2 border-t border-line">
-            {!showCustomInput ? (
-              <button
-                onClick={() => setShowCustomInput(true)}
-                className="flex items-center gap-1 text-[10px] text-aptum-blue hover:underline"
-              >
-                <Plus className="w-3 h-3" />
-                Add custom focus area
-              </button>
-            ) : (
-              <div className="flex gap-1.5">
-                <input
-                  type="text"
-                  className="input-compact flex-1 text-xs"
-                  placeholder="e.g., Olympic Lifting..."
-                  value={customValue}
-                  onChange={(e) => setCustomValue(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') addCustomArea();
-                    if (e.key === 'Escape') {
-                      setShowCustomInput(false);
-                      setCustomValue('');
-                    }
-                  }}
-                  autoFocus
-                />
-                <button
-                  onClick={addCustomArea}
-                  className="px-2 py-1 bg-aptum-blue text-white text-xs rounded hover:bg-aptum-blue/90"
-                  disabled={!customValue.trim()}
-                >
-                  Add
-                </button>
-              </div>
-            )}
+      {/* Focus Area Chips */}
+      <div className="flex flex-wrap gap-2">
+        {SUGGESTED_FOCUS_AREAS.map((area) => {
+          const isSelected = selected.includes(area);
+          return (
+            <button
+              key={area}
+              onClick={() => toggleArea(area)}
+              disabled={selected.length >= 3 && !isSelected}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                isSelected
+                  ? 'bg-aptum-blue text-white shadow-sm'
+                  : selected.length >= 3
+                  ? 'bg-gray-50 text-gray-300 cursor-not-allowed'
+                  : 'bg-white border border-gray-200 text-gray-700 hover:border-aptum-blue hover:text-aptum-blue hover:shadow-sm'
+              }`}
+            >
+              {area}
+            </button>
+          );
+        })}
+        
+        {/* Custom focus area button/input */}
+        {selected.length < 3 && !showCustomInput && (
+          <button
+            onClick={() => setShowCustomInput(true)}
+            className="px-3 py-1.5 rounded-full text-sm font-medium bg-white border border-dashed border-gray-300 text-gray-500 hover:border-aptum-blue hover:text-aptum-blue transition-all"
+          >
+            <Plus className="w-4 h-4 inline mr-1" />
+            Custom
+          </button>
+        )}
+        
+        {showCustomInput && (
+          <div className="flex gap-2 items-center">
+            <input
+              type="text"
+              className="input-compact text-sm w-40"
+              placeholder="Custom area..."
+              value={customValue}
+              onChange={(e) => setCustomValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') addCustomArea();
+                if (e.key === 'Escape') {
+                  setShowCustomInput(false);
+                  setCustomValue('');
+                }
+              }}
+              autoFocus
+            />
+            <button
+              onClick={addCustomArea}
+              className="px-3 py-1 bg-aptum-blue text-white text-sm rounded hover:bg-aptum-blue/90"
+              disabled={!customValue.trim()}
+            >
+              Add
+            </button>
+            <button
+              onClick={() => {
+                setShowCustomInput(false);
+                setCustomValue('');
+              }}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         )}
       </div>
-
-      <div className="text-[10px] text-muted">Selected: {selected.length}/3 • You can use suggested areas or create custom ones</div>
     </div>
   );
 }
@@ -483,38 +497,41 @@ function SessionDistributionField({ field, focusAreas, onUpdate, onToggleLock }:
   }
 
   return (
-    <div className={`grid gap-1 transition-all duration-300 ${field.highlight ? 'animate-pulse-once' : ''}`}>
+    <div className={`space-y-2 transition-all duration-300 ${field.highlight ? 'animate-pulse-once' : ''}`}>
       <div className="flex items-center justify-between">
-        <label className="text-xs font-medium flex items-center gap-1.5">
-          Session Distribution
-          <span className={`text-[10px] px-1 py-0.5 rounded ${
-            isLocked ? 'bg-gray-200 text-gray-700' :
-            isSystemOwned ? 'bg-blue-100 text-blue-700' :
-            'bg-green-100 text-green-700'
+        <div>
+          <label className="text-sm font-medium text-gray-900">Session Distribution</label>
+          <div className="text-xs text-gray-500 mt-0.5">Sessions per week per focus area</div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+            isLocked ? 'bg-gray-100 text-gray-600' :
+            isSystemOwned ? 'bg-blue-50 text-blue-600' :
+            'bg-green-50 text-green-600'
           }`}>
             {isLocked ? 'Locked' : isSystemOwned ? 'AI' : 'You'}
           </span>
-        </label>
-        <button
-          onClick={onToggleLock}
-          className="p-0.5 hover:bg-panel rounded transition-colors"
-        >
-          {isLocked ? <Lock className="w-3.5 h-3.5 text-gray-500" /> : <Unlock className="w-3.5 h-3.5 text-gray-400" />}
-        </button>
+          <button
+            onClick={onToggleLock}
+            className="p-1 hover:bg-gray-100 rounded transition-colors"
+          >
+            {isLocked ? <Lock className="w-4 h-4 text-gray-400" /> : <Unlock className="w-4 h-4 text-gray-300" />}
+          </button>
+        </div>
       </div>
-      <div className={`grid gap-1.5 p-2 rounded border ${field.highlight ? 'ring-2 ring-aptum-blue ring-opacity-50 border-aptum-blue' : 'border-line'}`}>
+      <div className="space-y-2">
         {focusAreas.map((area) => (
-          <div key={area} className="flex items-center gap-2">
-            <span className="text-xs flex-1">{area}</span>
+          <div key={area} className="flex items-center gap-3 bg-gray-50 px-3 py-2 rounded-lg">
+            <span className="text-sm font-medium text-gray-700 flex-1">{area}</span>
             <input
               type="number"
-              className="input-compact w-16 text-xs"
+              className="input-compact w-20 text-center font-medium"
               value={distribution[area] || 0}
               onChange={(e) => updateDistribution(area, Number(e.target.value))}
               min={0}
               max={21}
             />
-            <span className="text-[10px] text-muted whitespace-nowrap">sessions/week</span>
+            <span className="text-xs text-gray-500">sessions/wk</span>
           </div>
         ))}
       </div>
@@ -533,50 +550,53 @@ function ProgressionTypeField({ field, onUpdate, onToggleLock }: {
   const isSystemOwned = field.ownership === 'system-owned';
 
   return (
-    <div className={`grid gap-1 transition-all duration-300 ${field.highlight ? 'animate-pulse-once' : ''}`}>
+    <div className={`space-y-2 transition-all duration-300 ${field.highlight ? 'animate-pulse-once' : ''}`}>
       <div className="flex items-center justify-between">
-        <label className="text-xs font-medium flex items-center gap-1.5">
-          Progression Type
-          <span className={`text-[10px] px-1 py-0.5 rounded ${
-            isLocked ? 'bg-gray-200 text-gray-700' :
-            isSystemOwned ? 'bg-blue-100 text-blue-700' :
-            'bg-green-100 text-green-700'
+        <div>
+          <label className="text-sm font-medium text-gray-900">Progression Type</label>
+          <div className="text-xs text-gray-500 mt-0.5">How intensity and volume progress over time</div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+            isLocked ? 'bg-gray-100 text-gray-600' :
+            isSystemOwned ? 'bg-blue-50 text-blue-600' :
+            'bg-green-50 text-green-600'
           }`}>
             {isLocked ? 'Locked' : isSystemOwned ? 'AI' : 'You'}
           </span>
-        </label>
-        <button
-          onClick={onToggleLock}
-          className="p-0.5 hover:bg-panel rounded transition-colors"
-        >
-          {isLocked ? <Lock className="w-3.5 h-3.5 text-gray-500" /> : <Unlock className="w-3.5 h-3.5 text-gray-400" />}
-        </button>
+          <button
+            onClick={onToggleLock}
+            className="p-1 hover:bg-gray-100 rounded transition-colors"
+          >
+            {isLocked ? <Lock className="w-4 h-4 text-gray-400" /> : <Unlock className="w-4 h-4 text-gray-300" />}
+          </button>
+        </div>
       </div>
-      <div className={`grid grid-cols-2 gap-2 p-2 rounded border ${field.highlight ? 'ring-2 ring-aptum-blue ring-opacity-50 border-aptum-blue' : 'border-line'}`}>
+      <div className="grid grid-cols-2 gap-3">
         <button
           onClick={() => onUpdate('linear')}
-          className={`p-2 rounded border-2 transition-all text-left ${
+          className={`p-3 rounded-lg border-2 transition-all text-left ${
             value === 'linear'
-              ? 'border-aptum-blue bg-aptum-blue/5'
-              : 'border-line hover:border-gray-300'
+              ? 'border-aptum-blue bg-aptum-blue/5 shadow-sm'
+              : 'border-gray-200 hover:border-gray-300 bg-white'
           }`}
         >
-          <div className="font-semibold text-xs mb-0.5">Linear</div>
-          <div className="text-[10px] text-muted leading-tight">
-            Beginner-friendly, 4-8 weeks, steady progression
+          <div className="font-semibold text-sm text-gray-900 mb-1">Linear</div>
+          <div className="text-xs text-gray-600 leading-relaxed">
+            Beginner-friendly, steady progression
           </div>
         </button>
         <button
           onClick={() => onUpdate('periodized')}
-          className={`p-2 rounded border-2 transition-all text-left ${
+          className={`p-3 rounded-lg border-2 transition-all text-left ${
             value === 'periodized'
-              ? 'border-aptum-blue bg-aptum-blue/5'
-              : 'border-line hover:border-gray-300'
+              ? 'border-aptum-blue bg-aptum-blue/5 shadow-sm'
+              : 'border-gray-200 hover:border-gray-300 bg-white'
           }`}
         >
-          <div className="font-semibold text-xs mb-0.5">Periodized</div>
-          <div className="text-[10px] text-muted leading-tight">
-            Advanced models with varied intensities and volumes
+          <div className="font-semibold text-sm text-gray-900 mb-1">Periodized</div>
+          <div className="text-xs text-gray-600 leading-relaxed">
+            Advanced models with phases
           </div>
         </button>
       </div>

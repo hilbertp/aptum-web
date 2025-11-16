@@ -40,12 +40,12 @@ test.describe('Test 10: Goals page plan configuration', () => {
     await expect(planPanel).toBeVisible();
     
     // Step 1: Set Weeks Planned to 16
-    const weeksInput = page.locator('label:has-text("Weeks Planned")').locator('..').locator('..').locator('input[type="number"]');
+    const weeksInput = page.locator('label:has-text("Weeks Planned")').locator('../..').locator('..').locator('input[type="number"]');
     await weeksInput.fill('16');
     await expect(weeksInput).toHaveValue('16');
     
     // Step 2: Set Sessions Per Week to 5
-    const sessionsInput = page.locator('label:has-text("Sessions Per Week")').locator('..').locator('..').locator('input[type="number"]');
+    const sessionsInput = page.locator('label:has-text("Sessions Per Week")').locator('../..').locator('..').locator('input[type="number"]');
     await sessionsInput.fill('5');
     await expect(sessionsInput).toHaveValue('5');
     

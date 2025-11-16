@@ -48,17 +48,17 @@ export function getOwnershipBadge(ownership: 'system' | 'athlete' | 'locked'): {
     case 'system':
       return {
         text: 'AI',
-        className: 'bg-blue-100 text-blue-700'
+        className: 'bg-blue-50 text-blue-600'
       };
     case 'athlete':
       return {
         text: 'You',
-        className: 'bg-green-100 text-green-700'
+        className: 'bg-green-50 text-green-600'
       };
     case 'locked':
       return {
         text: 'Locked',
-        className: 'bg-gray-200 text-gray-700'
+        className: 'bg-gray-100 text-gray-600'
       };
   }
 }
