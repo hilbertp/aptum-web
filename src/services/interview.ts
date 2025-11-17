@@ -6,10 +6,11 @@ import { driveSync } from './driveSync';
 
 export type ChatMsg = { role: 'user' | 'assistant'; content: string };
 export type GoalsSlots = {
-  primaryGoal?: 'hypertrophy' | 'strength' | 'endurance' | 'mixed' | string;
-  daysPerWeek?: number;
-  equipment?: string;
-  constraints?: string;
+  focusAreas?: string[]; // 1-3 focus areas (e.g., ['Strength', 'Hypertrophy'])
+  trainingDaysPerWeek?: number; // days available per week (1-7)
+  sessionsPerWeek?: number; // total sessions including multiple per day (2-21)
+  equipmentAccess?: string; // free text description
+  constraints?: string; // injuries, time, preferences
 };
 
 // Focus areas can be predefined or custom strings
@@ -236,7 +237,7 @@ export async function askGoals(state: GoalsInterviewState, userText: string, pro
   }
 
   // Check if we should request initial plan recommendations
-  const hasEnoughSlots = !!(state.slots.primaryGoal && state.slots.daysPerWeek && state.slots.equipment);
+  const hasEnoughSlots = !!(state.slots.focusAreas?.length && state.slots.trainingDaysPerWeek && state.slots.equipmentAccess);
   const isInitialRecommendation = hasEnoughSlots && !state.planRecommendation;
   const planRec = state.planRecommendation || createDefaultPlanRecommendation();
 
@@ -291,7 +292,7 @@ export async function askGoals(state: GoalsInterviewState, userText: string, pro
 }
 
 export function slotsComplete(slots: GoalsSlots) {
-  return !!(slots.primaryGoal && slots.daysPerWeek && slots.equipment);
+  return !!(slots.focusAreas?.length && slots.trainingDaysPerWeek && slots.equipmentAccess);
 }
 
 export async function rebuildPlan(state: GoalsInterviewState, profile?: Profile): Promise<GoalsInterviewState> {
@@ -300,7 +301,7 @@ export async function rebuildPlan(state: GoalsInterviewState, profile?: Profile)
   // Retrieve KB based on the goal
   let snippets: string[] = [];
   try {
-    const goalQuery = `${state.slots.primaryGoal || 'fitness'} periodization training plan`;
+    const goalQuery = `${state.slots.focusAreas?.join(' ') || 'fitness'} periodization training plan`;
     const results = await kbSearch(goalQuery, { topK: 4, filters: { kinds: ['paper', 'note', 'video_note'] } });
     snippets = results.map((r) => (r.text || '').slice(0, 800)).filter(Boolean);
   } catch {
