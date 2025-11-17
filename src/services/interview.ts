@@ -122,16 +122,24 @@ function systemPrompt(kbSnippets: string[], planRecommendation: PlanRecommendati
 
   const profileContext = profile ? `
 THIS IS YOUR ATHLETE'S PROFILE:
-Age: ${profile.ageYears || 'not specified'}
+Age: ${profile.ageYears || 'not specified'} years
 Height: ${profile.heightCm || 'not specified'} cm
 Weight: ${profile.weightKg || 'not specified'} kg
 Sex: ${profile.gender || 'not specified'}
 Lifting Experience: ${profile.liftingExperience || 'not specified'}
+  ${profile.liftingExperience === 'novice' ? '(New to structured training, learning basic movements)' : ''}
+  ${profile.liftingExperience === 'intermediate' ? '(Trains consistently, understands RIR/RPE, progressive overload, follows a plan)' : ''}
+  ${profile.liftingExperience === 'advanced' ? '(Years of experience, handles complex periodization and higher volumes)' : ''}
+  ${profile.liftingExperience === 'expert' ? '(Elite level, masters advanced programming and peaking strategies)' : ''}
 Fitness Level: ${profile.fitnessLevel || 'not specified'}
+  ${profile.fitnessLevel === 'sedentary' ? '(Limited conditioning, needs careful progression)' : ''}
+  ${profile.fitnessLevel === 'developing' ? '(Can sustain 30-45 min steady activity, building conditioning)' : ''}
+  ${profile.fitnessLevel === 'active' ? '(Solid conditioning base, handles moderate training volumes)' : ''}
+  ${profile.fitnessLevel === 'athletic' ? '(High work capacity, recovers well from demanding sessions)' : ''}
 Endurance Background: ${profile.endurance || 'not specified'}
 
-ALWAYS reference the athlete's profile naturally in conversation.
-` : '\nATHLETE PROFILE: Not available yet.';
+ALWAYS reference this athlete's specific profile naturally in conversation (e.g., "Given your ${profile.liftingExperience} experience..." or "At ${profile.ageYears} years old...").
+` : '\nATHLETE PROFILE: Not provided yet. The athlete completes their profile (age, sex, weight, height, experience) BEFORE the goals interview.';
 
   const planInstructions = planRecommendation ? `
 === INTERVIEW RULES ===
