@@ -11,10 +11,12 @@ export default function Welcome() {
   const auth = useAuth();
   const [checkingData, setCheckingData] = useState(false);
   const [restoreError, setRestoreError] = useState<string | null>(null);
+  const [hasChecked, setHasChecked] = useState(false);
 
   const handleReturningUser = useCallback(async () => {
     setCheckingData(true);
     setRestoreError(null);
+    setHasChecked(true);
 
     try {
       // Check if user has existing data on Drive
@@ -42,12 +44,15 @@ export default function Welcome() {
     }
   }, [nav]);
 
-  // Check for existing data when user signs in
-  useEffect(() => {
-    if (auth.status === 'signed_in' && !checkingData) {
-      handleReturningUser();
+  const handleSignIn = async () => {
+    try {
+      await signInWithGoogle();
+      // After successful sign-in, check for existing data
+      await handleReturningUser();
+    } catch (error) {
+      console.error('Sign-in failed:', error);
     }
-  }, [auth.status, checkingData, handleReturningUser]);
+  };
 
   const isSigningIn = auth.status === 'signing_in';
   const isCheckingOrSyncing = checkingData || driveSync.status === 'syncing';
@@ -81,7 +86,7 @@ export default function Welcome() {
       <div className="mt-6 flex flex-col gap-3">
         <button 
           className="btn btn-primary flex items-center justify-center gap-2" 
-          onClick={signInWithGoogle}
+          onClick={handleSignIn}
           disabled={isSigningIn || isCheckingOrSyncing}
         >
           {isSigningIn && <Loader2 className="w-4 h-4 animate-spin" />}
