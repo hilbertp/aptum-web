@@ -191,6 +191,27 @@ export default function Profile() {
             <div className="text-xs text-muted">{fitDesc[((profile as any).fitnessLevel as string) || '']}</div>
           )}
         </label>
+        <label className="grid gap-1">
+          <span className="text-sm">Equipment access <span className="text-red-500">*</span></span>
+          <select 
+            className={`input ${errors.equipmentAccess ? 'border-red-300 bg-red-50' : ''}`}
+            value={(profile as any).equipmentAccess || ''} 
+            onChange={(e) => {
+              setProfile({ ...profile, equipmentAccess: (e.target.value || undefined) as any });
+              if (errors.equipmentAccess) {
+                const newErrors = { ...errors };
+                delete newErrors.equipmentAccess;
+                setErrors(newErrors);
+              }
+            }}
+          >
+            <option value="">—</option>
+            <option value="full-gym">Full Gym</option>
+            <option value="limited-home-weights">Limited Home Weights</option>
+            <option value="bodyweight-only">Bodyweight Only</option>
+          </select>
+          {errors.equipmentAccess && <span className="text-xs text-red-600">{errors.equipmentAccess}</span>}
+        </label>
       </div>
       <label className="grid gap-1 max-w-xs">
         <span className="text-sm">Units</span>

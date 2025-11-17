@@ -9,7 +9,8 @@ const ProfileSchemaBase = z.object({
   units: z.enum(['metric', 'imperial']).default('metric'),
   endurance: z.string().optional(),
   liftingExperience: z.string().optional(),
-  fitnessLevel: z.string().optional()
+  fitnessLevel: z.string().optional(),
+  equipmentAccess: z.enum(['full-gym', 'limited-home-weights', 'bodyweight-only']).optional()
 });
 
 // Validation schema with strict requirements
@@ -41,7 +42,10 @@ export const ProfileSchema = z.object({
   }).min(1, "Please select your lifting experience"),
   fitnessLevel: z.string({
     required_error: "Fitness level is required"
-  }).min(1, "Please select your fitness level")
+  }).min(1, "Please select your fitness level"),
+  equipmentAccess: z.enum(['full-gym', 'limited-home-weights', 'bodyweight-only'], {
+    required_error: "Equipment access is required"
+  })
 });
 
 // Use the base schema for type inference

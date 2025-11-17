@@ -9,7 +9,6 @@ export type GoalsSlots = {
   focusAreas?: string[]; // 1-3 focus areas (e.g., ['Strength', 'Hypertrophy'])
   trainingDaysPerWeek?: number; // days available per week (1-7)
   sessionsPerWeek?: number; // total sessions including multiple per day (2-21)
-  equipmentAccess?: string; // free text description
   constraints?: string; // injuries, time, preferences
 };
 
@@ -127,6 +126,7 @@ Age: ${profile.ageYears || 'not specified'} years
 Height: ${profile.heightCm || 'not specified'} cm
 Weight: ${profile.weightKg || 'not specified'} kg
 Sex: ${profile.gender || 'not specified'}
+Equipment Access: ${profile.equipmentAccess === 'full-gym' ? 'Full Gym' : profile.equipmentAccess === 'limited-home-weights' ? 'Limited Home Weights' : profile.equipmentAccess === 'bodyweight-only' ? 'Bodyweight Only' : 'not specified'}
 Lifting Experience: ${profile.liftingExperience || 'not specified'}
   ${profile.liftingExperience === 'novice' ? '(New to structured training, learning basic movements)' : ''}
   ${profile.liftingExperience === 'intermediate' ? '(Trains consistently, understands RIR/RPE, progressive overload, follows a plan)' : ''}
@@ -139,8 +139,8 @@ Fitness Level: ${profile.fitnessLevel || 'not specified'}
   ${profile.fitnessLevel === 'athletic' ? '(High work capacity, recovers well from demanding sessions)' : ''}
 Endurance Background: ${profile.endurance || 'not specified'}
 
-ALWAYS reference this athlete's specific profile naturally in conversation (e.g., "Given your ${profile.liftingExperience} experience..." or "At ${profile.ageYears} years old...").
-` : '\nATHLETE PROFILE: Not provided yet. The athlete completes their profile (age, sex, weight, height, experience) BEFORE the goals interview.';
+ALWAYS reference this athlete's specific profile naturally in conversation (e.g., "Given your ${profile.liftingExperience} experience..." or "At ${profile.ageYears} years old..." or "With ${profile.equipmentAccess === 'full-gym' ? 'full gym access' : profile.equipmentAccess === 'limited-home-weights' ? 'your home weights' : 'bodyweight only'}...").
+` : '\nATHLETE PROFILE: Not provided yet. The athlete completes their profile (age, sex, weight, height, equipment access, experience) BEFORE the goals interview.';
 
   const planInstructions = planRecommendation ? `
 === INTERVIEW RULES ===
@@ -151,9 +151,10 @@ Gather all information needed to make an educated mesocycle recommendation:
 • primaryGoal: 1–3 focus areas from: Strength, Hypertrophy, Power/Explosiveness, Endurance (steady), HIIT/Conditioning, Mobility/Stability, Sport Performance
 • trainingDaysPerWeek: integer 1..7
 • sessionsPerWeek: integer 2..21 (multiple per day allowed)
-• equipmentAccess: free text
 • deloadRatio: 2:1, 3:1, 4:1, or 5:1
 • constraints: injuries, time, preferences
+
+NOTE: Equipment access is already in the athlete's profile—do not ask about it again.
 
 EVERY question must target missing data. Interview them honestly to understand:
 - Injuries and conditions
@@ -211,8 +212,9 @@ Ask ONE concise question at a time to fill these slots:
 • primaryGoal: 1–3 focus areas from [Strength, Hypertrophy, Power/Explosiveness, Endurance (steady), HIIT/Conditioning, Mobility, Sport Performance]
 • trainingDaysPerWeek: integer 1..7
 • sessionsPerWeek: integer 2..21
-• equipmentAccess: free text
 • constraints: injuries, time, preferences
+
+NOTE: Equipment access is already in the athlete's profile.
 `;
 
   return [
@@ -237,7 +239,7 @@ export async function askGoals(state: GoalsInterviewState, userText: string, pro
   }
 
   // Check if we should request initial plan recommendations
-  const hasEnoughSlots = !!(state.slots.focusAreas?.length && state.slots.trainingDaysPerWeek && state.slots.equipmentAccess);
+  const hasEnoughSlots = !!(state.slots.focusAreas?.length && state.slots.trainingDaysPerWeek);
   const isInitialRecommendation = hasEnoughSlots && !state.planRecommendation;
   const planRec = state.planRecommendation || createDefaultPlanRecommendation();
 
@@ -292,7 +294,7 @@ export async function askGoals(state: GoalsInterviewState, userText: string, pro
 }
 
 export function slotsComplete(slots: GoalsSlots) {
-  return !!(slots.focusAreas?.length && slots.trainingDaysPerWeek && slots.equipmentAccess);
+  return !!(slots.focusAreas?.length && slots.trainingDaysPerWeek);
 }
 
 export async function rebuildPlan(state: GoalsInterviewState, profile?: Profile): Promise<GoalsInterviewState> {
