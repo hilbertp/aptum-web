@@ -6,7 +6,7 @@ import { driveSync } from './driveSync';
 
 export type ChatMsg = { role: 'user' | 'assistant'; content: string };
 export type GoalsSlots = {
-  primaryGoal?: 'hypertrophy' | 'strength' | 'fat loss' | 'endurance' | 'mixed' | string;
+  primaryGoal?: 'hypertrophy' | 'strength' | 'endurance' | 'mixed' | string;
   daysPerWeek?: number;
   equipment?: string;
   constraints?: string;
@@ -22,9 +22,7 @@ export const SUGGESTED_FOCUS_AREAS = [
   'Endurance (steady)',
   'HIIT / Conditioning',
   'Mobility',
-  'Sport Performance',
-  'Fat Loss',
-  'Longevity / Health'
+  'Sport Performance'
 ] as const;
 
 export type BlockerType = 'team-practice' | 'game-day' | 'off-day' | 'recovery';
@@ -125,7 +123,7 @@ function systemPrompt(kbSnippets: string[], planRecommendation: PlanRecommendati
   const focusAreas = [
     'Strength', 'Hypertrophy', 'Power / Explosiveness', 
     'Endurance (steady)', 'HIIT / Conditioning', 'Mobility', 
-    'Sport Performance', 'Fat Loss', 'Longevity / Health'
+    'Sport Performance'
   ];
 
   const profileContext = profile ? `
@@ -193,7 +191,7 @@ ${JSON.stringify(planRecommendation, null, 2)}
     'You are Aptum Coach, interviewing an athlete to design a mesocycle.',
     profileContext,
     'Interview via chat. Ask ONE concise question at a time to fill these slots:',
-    '- primaryGoal: hypertrophy | strength | fat loss | endurance | mixed',
+    '- primaryGoal: hypertrophy | strength | endurance | mixed',
     '- daysPerWeek: integer (2..7, training days available per week)',
     '- equipment: free text (e.g., full gym, limited, home setup)',
     '- constraints: injuries, time constraints, preferences',

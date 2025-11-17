@@ -9,7 +9,7 @@ import { driveSync } from './driveSync';
 export type { Profile };
 
 export type InterviewAnswers = {
-  primaryGoal: 'hypertrophy' | 'strength' | 'fat loss' | 'endurance' | 'mixed';
+  primaryGoal: 'hypertrophy' | 'strength' | 'endurance' | 'mixed';
   daysPerWeek: number;
   equipment: string;
   constraints?: string;

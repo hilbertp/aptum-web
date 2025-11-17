@@ -15,7 +15,7 @@ import {
 import { byok } from '@/services/byok';
 import { loadProfile, type Profile } from '@/services/coach';
 
-type FocusArea = '' | 'Strength' | 'Hypertrophy' | 'Power / Explosiveness' | 'Endurance (steady)' | 'HIIT / Conditioning' | 'Mobility' | 'Sport Performance' | 'Fat Loss' | 'Longevity / Health';
+type FocusArea = '' | 'Strength' | 'Hypertrophy' | 'Power / Explosiveness' | 'Endurance (steady)' | 'HIIT / Conditioning' | 'Mobility' | 'Sport Performance';
 
 const FOCUS_AREAS: FocusArea[] = [
   '',
@@ -25,9 +25,7 @@ const FOCUS_AREAS: FocusArea[] = [
   'Endurance (steady)',
   'HIIT / Conditioning',
   'Mobility',
-  'Sport Performance',
-  'Fat Loss',
-  'Longevity / Health'
+  'Sport Performance'
 ];
 
 const FOCUS_AREA_ICONS: Record<string, React.ReactNode> = {

@@ -20,7 +20,7 @@ export default function Onboarding() {
   const [profile, setProfile] = useState<Profile>({ units: 'metric' } as Profile);
   const [savingProfile, setSavingProfile] = useState(false);
 
-  const [goal, setGoal] = useState<'hypertrophy' | 'strength' | 'fat loss' | 'endurance' | 'mixed'>('strength');
+  const [goal, setGoal] = useState<'hypertrophy' | 'strength' | 'endurance' | 'mixed'>('strength');
   const [days, setDays] = useState(4);
   const [equipment, setEquipment] = useState('full gym');
   const [constraints, setConstraints] = useState('');
@@ -146,7 +146,6 @@ export default function Onboarding() {
               <select className="input" value={goal} onChange={e => setGoal(e.target.value as any)}>
                 <option value="hypertrophy">Hypertrophy</option>
                 <option value="strength">Strength</option>
-                <option value="fat loss">Fat loss</option>
                 <option value="endurance">Endurance</option>
                 <option value="mixed">Mixed</option>
               </select>
