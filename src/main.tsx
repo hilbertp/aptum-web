@@ -3,6 +3,13 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import './index.css';
 
+// GitHub Pages SPA redirect support
+const redirect = sessionStorage.getItem('redirect');
+if (redirect) {
+  sessionStorage.removeItem('redirect');
+  history.replaceState(null, '', redirect);
+}
+
 // Dev-only: ensure no stale service workers/caches persist on the dev host
 if (import.meta.env.DEV) {
   (async () => {
