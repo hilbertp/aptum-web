@@ -6,6 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 const port = Number.parseInt(process.env.PORT || '') || 5173;
 
 export default defineConfig({
+  base: process.env.GITHUB_PAGES ? '/aptum-web/' : '/',
   plugins: [
     react(),
     VitePWA({
