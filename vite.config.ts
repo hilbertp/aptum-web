@@ -10,8 +10,9 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      selfDestroying: process.env.NODE_ENV !== 'production',
+      selfDestroying: true,
       registerType: 'autoUpdate',
+      injectRegister: false,
       manifest: {
         name: 'APTUM',
         short_name: 'APTUM',
